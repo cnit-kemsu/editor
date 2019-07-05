@@ -1,6 +1,6 @@
 import { Modifier, EditorState } from 'draft-js';
 
-export function insertImage(src, editorState) {
+export function insertImage(src, editorState, selection) {
  
   return editorState.getCurrentContent()
   
@@ -10,7 +10,7 @@ export function insertImage(src, editorState) {
     })
 
   |> Modifier.insertText(
-      #, editorState.getSelection(),
+      #, selection || editorState.getSelection(),
       '\u{1F4F7}', null, #.getLastCreatedEntityKey()
     )
 

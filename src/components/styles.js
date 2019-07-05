@@ -82,3 +82,22 @@ export const ResizingFrame = makeStyles({
     left: '-3px'
   }
 });
+
+export const Image = {
+  image: {
+    minWidth: '22px',
+    minHeight: '22px',
+    maxWidth: '1000px',
+    maxHeight: '1000px'
+  },
+  text: {
+    visibility: 'hidden !important',
+    marginLeft: '-22px'
+  }
+};
+
+export const Toolbar = {
+  button: {
+    minWidth: '0px'
+  }
+};

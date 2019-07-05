@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from '@material-ui/styles';
-//import { createMuiTheme } from "@material-ui/core/styles";
+import { createMuiTheme } from "@material-ui/core/styles";
 import { convertToRaw } from 'draft-js';
 import { Editor } from '@components/Editor';
 import { createContentFromHTML } from '@lib/createContentFromHTML';
@@ -40,8 +40,7 @@ function App() {
   </>;
 }
 
-//const theme = createMuiTheme({});
-const theme = {};
+const theme = createMuiTheme({});
 
 const Root = () => (
   <ThemeProvider theme={theme}>

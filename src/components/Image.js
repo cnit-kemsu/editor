@@ -1,13 +1,15 @@
 import React, { PureComponent } from 'react';
 import { Modifier, EditorState, SelectionState } from 'draft-js';
+import { withStyles } from "@material-ui/core/styles";
 import { printAttributes } from '@lib/printAttributes';
 import { Resizer } from './Resizer';
+import { Image as styles } from './styles';
 
 const dataAttributeMap = {
   symmetric: 'data-symmetric'
 };
 
-export class Image extends PureComponent {
+class Image extends PureComponent {
 
   constructor(props) {
     super(props);
@@ -39,7 +41,7 @@ export class Image extends PureComponent {
     event.preventDefault();
     //event.clipboardData.setData('text/plain', '');
     const attributes = printAttributes(this.data, dataAttributeMap);
-    event.clipboardData.setData('text/html', `<img ${attributes} />1`); // TODO: find bug
+    event.clipboardData.setData('text/html', `<img ${attributes} />1`); // TODO: find a bug
   }
 
   focus() {
@@ -120,17 +122,20 @@ export class Image extends PureComponent {
   }
 
   render() {
-    const { contentState, offsetKey, entityKey } = this.props;
+    const { classes, contentState, offsetKey, entityKey } = this.props;
     const { focus, blur, resize } = this;
     this.data = contentState.getEntity(entityKey).getData();
-    const { symmetric, ...data } = this.data;
+    const { symmetric, src, width, height } = this.data;
+
     return <>
       <span data-offset-key={offsetKey} contentEditable={false}>
           <Resizer {...{ symmetric, onFocus: focus, onBlur: blur, onResize: resize }}>
-            <img style={{ minWidth: '22px', minHeight: '22px', maxWidth: '1000px', maxHeight: '1000px' }} data-symmetric={symmetric} {...data} />
+            <img className={classes.image} data-symmetric={symmetric} {...{ src, width, height }} />
           </Resizer>
-          <span style={{ visibility: 'hidden', marginLeft: '-22px' }}>{'\u{1F4F7}'}</span>
+          <span className={classes.text}>{'\u{1F4F7}'}</span>
       </span>
     </>;
   }
 }
+
+export default withStyles(styles)(Image);

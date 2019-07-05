@@ -4,8 +4,10 @@ import { Editor as DraftJSEditor, EditorState, CompositeDecorator } from 'draft-
 import { findImageEntities } from '@lib/findImageEntities';
 import { handlePastedText } from '@lib/handlePastedText';
 import { handleKeyCommand } from '@lib/handleKeyCommand';
+import { handleDroppedFiles } from '@lib/handleDroppedFiles';
 import { insertImage } from '@lib/insertImage';
-import { Image } from '@components/Image';
+import Image from '@components/Image';
+import Toolbar from '@components/Toolbar';
 
 export class Editor extends PureComponent {
 
@@ -32,6 +34,7 @@ export class Editor extends PureComponent {
     this.onChangeCallback = this.onChangeCallback.bind(this);
     this.handlePastedText = this.handlePastedText.bind(this);
     this.handleKeyCommand = handleKeyCommand.bind(this);
+    this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
     this.insertImage = this.insertImage.bind(this);
 
     //this.undo = this.undo.bind(this);
@@ -39,13 +42,6 @@ export class Editor extends PureComponent {
   
   componentDidMount() {
     this.contentNode = ReactDOM.findDOMNode(this.editor.current).querySelector('.public-DraftEditor-content');
-    // this.contentNode.addEventListener('mousedown', (event) => {
-    //   //event.preventDefault();
-    //   const { clientX, clientY } = event;
-    //   const element = document.elementFromPoint(clientX, clientY);
-    //   console.log(element);
-    //   console.log('lalala');
-    // });
   }
 
   disable() {
@@ -82,10 +78,16 @@ export class Editor extends PureComponent {
   }
 
   handlePastedText(text, html, editorState) {
+    if (!html) return false;
     this.setState({
       editorState: handlePastedText(html, editorState)
     }, this.onChangeCallback);
     return true;
+  }
+
+  handleDroppedFiles(selection, files) {
+    const editorState = handleDroppedFiles(selection, files, this.state.editorState);
+    if (editorState) this.setState({ editorState }, this.onChangeCallback);
   }
 
   insertImage(src) {
@@ -111,11 +113,13 @@ export class Editor extends PureComponent {
       {/* <div>
         <button onClick={this.undo}>undo</button>
       </div> */}
+      <Toolbar editorState={this.state.editorState} />
       <DraftJSEditor ref={this.editor}
         editorState={this.state.editorState}
         onChange={this.onChange}
         handleKeyCommand={this.handleKeyCommand}
         handlePastedText={this.handlePastedText}
+        handleDroppedFiles={this.handleDroppedFiles}
       />
     </>;
   }
