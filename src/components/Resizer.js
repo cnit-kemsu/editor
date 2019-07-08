@@ -53,7 +53,7 @@ export class Resizer extends Component {
     this.props.onBlur?.();
   }
   blur(event) {
-    //event.preventDefault();
+    //event.preventDefault(); // TODO: find a solution 
     
     if (!this.root.current.contains(event.target)) {
       this.setState({ focused: false });

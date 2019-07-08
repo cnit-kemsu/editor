@@ -97,7 +97,27 @@ export const Image = {
 };
 
 export const Toolbar = {
+  root: {
+    borderBottom: '1px solid #ddd',
+    paddingBottom: '8px'
+  },
   button: {
     minWidth: '0px'
+  }
+};
+
+export const ToolbarButton = {
+  root: {
+    minWidth: '0px'
+  }
+};
+
+export const Editor = {
+  root: {
+    border: '1px solid #ddd',
+    padding: '8px 16px 16px 16px'
+  },
+  content: {
+    paddingTop: '16px'
   }
 };

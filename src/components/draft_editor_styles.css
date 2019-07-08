@@ -1,0 +1,31 @@
+.unstyled_textAlign_left {
+  text-align: left;
+}
+.unstyled_textAlign_center {
+  text-align: center;
+}
+.unstyled_textAlign_right {
+  text-align: right;
+}
+.unstyled_textAlign_justify {
+  text-align: justify;
+}
+
+.listItem_textAlign_left {
+  width: fit-content;
+  margin-right: auto;
+  text-align: left;
+}
+.listItem_textAlign_center {
+  width: fit-content;
+  margin: auto;
+  text-align: center;
+}
+.listItem_textAlign_right {
+  width: fit-content;
+  margin-left: auto;
+  text-align: right;
+}
+.listItem_textAlign_justify {
+  text-align: justify;
+}

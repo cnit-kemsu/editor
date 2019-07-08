@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from "@material-ui/core/styles";
 import { convertToRaw } from 'draft-js';
-import { Editor } from '@components/Editor';
+import Editor from '@components/Editor';
 import { createContentFromHTML } from '@lib/createContentFromHTML';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';

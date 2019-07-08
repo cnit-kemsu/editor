@@ -24,6 +24,12 @@ export default {
           'example'
         ].map(incl => path.resolve(__dirname, incl)),
         loader: 'babel-loader'
+      }, {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' }
+        ]
       }
     ]
   },

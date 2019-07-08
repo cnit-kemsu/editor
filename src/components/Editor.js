@@ -1,15 +1,21 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Editor as DraftJSEditor, EditorState, CompositeDecorator } from 'draft-js';
+import { withStyles } from "@material-ui/core/styles";
 import { findImageEntities } from '@lib/findImageEntities';
 import { handlePastedText } from '@lib/handlePastedText';
 import { handleKeyCommand } from '@lib/handleKeyCommand';
 import { handleDroppedFiles } from '@lib/handleDroppedFiles';
 import { insertImage } from '@lib/insertImage';
+import { blockStyleFn } from '@lib/blockStyleFn';
 import Image from '@components/Image';
 import Toolbar from '@components/Toolbar';
 
-export class Editor extends PureComponent {
+import { Editor as styles } from './styles';
+
+import './draft_editor_styles.css';
+
+class Editor extends PureComponent {
 
   constructor(props) {
     super(props);
@@ -108,20 +114,27 @@ export class Editor extends PureComponent {
   // }
 
   render() {
+    const { classes } = this.props;
 
-    return <>
+    return <div className={classes.root}>
       {/* <div>
         <button onClick={this.undo}>undo</button>
       </div> */}
-      <Toolbar editorState={this.state.editorState} />
-      <DraftJSEditor ref={this.editor}
-        editorState={this.state.editorState}
-        onChange={this.onChange}
-        handleKeyCommand={this.handleKeyCommand}
-        handlePastedText={this.handlePastedText}
-        handleDroppedFiles={this.handleDroppedFiles}
-      />
-    </>;
+      <Toolbar editorState={this.state.editorState} onChange={this.onChange} />
+      <div className={classes.content}>
+        <DraftJSEditor ref={this.editor}
+          editorState={this.state.editorState}
+          onChange={this.onChange}
+          handleKeyCommand={this.handleKeyCommand}
+          handlePastedText={this.handlePastedText}
+          handleDroppedFiles={this.handleDroppedFiles}
+          blockStyleFn={blockStyleFn}
+        />
+      </div>
+      
+    </div>;
   }
 }
+
+export default withStyles(styles)(Editor);
 
