@@ -1,140 +1,119 @@
 import React, { PureComponent } from 'react';
 import { Modifier, EditorState, SelectionState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
-import { printAttributes } from '@lib/printAttributes';
-import { Resizer } from './Resizer';
+import { getSelectedKeys } from '../lib/getSelectedKeys';
+import Resizer from './Resizer';
 import { Image as styles } from './styles';
-
-const dataAttributeMap = {
-  symmetric: 'data-symmetric'
-};
 
 class Image extends PureComponent {
 
   constructor(props) {
     super(props);
 
-    this.copyToClipboard = this.copyToClipboard.bind(this);
-    this.focus = this.focus.bind(this);
-    this.blur = this.blur.bind(this);
+    this.state = { focused: false };
+
+    this.isCurrentEntityKey = this.isCurrentEntityKey.bind(this);
+    this.onFocus = this.onFocus.bind(this);
+    this.onBlur = this.onBlur.bind(this);
     this.resize = this.resize.bind(this);
-    this.remove = this.remove.bind(this);
-    this.handleKeyCommand = this.handleKeyCommand.bind(this);
+    this.onDragStart = this.onDragStart.bind(this);
   }
 
-  handleKeyCommand(event) {
-    event.preventDefault();
-    const { ctrlKey, which } = event;
-
-    if (ctrlKey) {
-      if (which === 90) this.undo();
-      else if (which === 89) this.redo();
-      else if (which === 67) this.copy();
-      else if (which === 88) this.cut();
-    } else {
-      if (which === 8) this.remove();
-      if (which === 46) this.remove();
-    }
-  }
-
-  copyToClipboard(event) {
-    event.preventDefault();
-    //event.clipboardData.setData('text/plain', '');
-    const attributes = printAttributes(this.data, dataAttributeMap);
-    event.clipboardData.setData('text/html', `<img ${attributes} />1`); // TODO: find a bug
-  }
-
-  focus() {
-    document.addEventListener('keydown', this.handleKeyCommand);
-    document.addEventListener('copy', this.copyToClipboard);
-    this.props.onFocus?.();
+  onFocus() {
+    this.setState({ focused: true });
+    this.forceSelection();
   }
   onBlur() {
-    document.removeEventListener('keydown', this.handleKeyCommand);
-    document.removeEventListener('copy', this.copyToClipboard);
-  }
-  blur() {
-    this.onBlur();
-    this.props.onBlur?.();
+    this.setState({ focused: false });
   }
 
-  getOffset() {
-    const { getEditorState, entityKey, blockKey } = this.props;
-    return getEditorState()
+  isCurrentEntityKey(character) {
+    return character.entity === this.props.entityKey;
+  }
+  getSelection() {
+    const { getEditorState, blockKey } = this.props;
+
+    const offset = getEditorState()
       .getCurrentContent().getBlockForKey(blockKey)
-      .getCharacterList().findIndex(character => character.entity === entityKey);
-  }
-
-  getSelection(offset, focusLength = 0) {
-    const { blockKey } = this.props;
+      .getCharacterList().findIndex(this.isCurrentEntityKey);
 
     return SelectionState.createEmpty(blockKey).merge({
       anchorOffset: offset,
-      focusOffset: offset + focusLength
+      focusOffset: offset + 2
     });
   }
 
   resize({ width, height }) {
     const { getEditorState, entityKey, onChange } = this.props;
     const editorState = getEditorState();
-    const offset = this.getOffset();
     const { symmetric, src } = editorState.getCurrentContent().getEntity(entityKey).getData();
+    const currentSelection = this.getSelection();
 
     editorState.getCurrentContent()
     |> #.createEntity('IMAGE', 'IMMUTABLE', { symmetric, src, width, height })
-    |> Modifier.applyEntity(#, this.getSelection(offset, 2), #.getLastCreatedEntityKey())
+    |> Modifier.applyEntity(#, currentSelection, #.getLastCreatedEntityKey())
     |> EditorState.push(editorState, #, 'apply-entity')
+    |> EditorState.forceSelection(#, currentSelection)
     |> onChange;
   }
 
-  remove() {
-    this.onBlur();
-
+  forceSelection() {
     const { getEditorState, onChange } = this.props;
     const editorState = getEditorState();
-    const offset = this.getOffset();
+    const currentSelection = this.getSelection();
 
-    editorState.getCurrentContent()
-    |> Modifier.removeRange(#, this.getSelection(offset, 2), 'forward')
-    |> EditorState.push(editorState, #, 'remove-range')
-    |> EditorState.forceSelection(#, this.getSelection(offset))
+    EditorState.forceSelection(editorState, currentSelection)
     |> onChange;
   }
 
-  copy() {
-    document.execCommand('copy');
-  }
-  cut() {
-    this.copy();
-    this.remove();
-  }
-  undo() {
-    const { getEditorState, onChange } = this.props;
-    getEditorState()
-    |> EditorState.undo
-    |> onChange;
-  }
-  redo() {
-    const { getEditorState, onChange } = this.props;
-    getEditorState()
-    |> EditorState.redo
+  onDragStart() {
+    const { getEditorState, blockKey, onChange } = this.props;
+    const editorState = getEditorState();
+
+    const selectedKeys = getSelectedKeys(editorState);
+    const currentIndex = selectedKeys.indexOf(blockKey);
+    if (currentIndex === -1) this.forceSelection();
+    if (currentIndex > 0 && currentIndex < selectedKeys.length - 1) return;
+
+    const selection = editorState.getSelection();
+    const currentSelection = this.getSelection();
+
+    if (currentIndex === 0) {
+      const startOffset = selection.getStartOffset();
+      const currentStartOffset = currentSelection.getStartOffset();
+      if (selectedKeys.length === 1) {
+        const endOffset = selection.getEndOffset();
+        const currentEndOffset = currentSelection.getEndOffset();
+        if (startOffset <= currentStartOffset && endOffset >= currentEndOffset) return;
+      }
+      else if (startOffset <= currentStartOffset) return;
+    } else {
+      const endOffset = selection.getEndOffset();
+      const currentEndOffset = currentSelection.getEndOffset();
+      if (endOffset >= currentEndOffset) return;
+    }
+
+    EditorState.forceSelection(editorState, currentSelection)
     |> onChange;
   }
 
   render() {
     const { classes, contentState, offsetKey, entityKey } = this.props;
-    const { focus, blur, resize } = this;
-    this.data = contentState.getEntity(entityKey).getData();
-    const { symmetric, src, width, height } = this.data;
+    const { state: { focused }, onFocus, onBlur, resize } = this;
+    const { symmetric, src, width, height } = contentState.getEntity(entityKey).getData();
+    const rootProps = focused ? undefined : { contentEditable: false };
 
-    return <>
-      <span data-offset-key={offsetKey} contentEditable={false}>
-          <Resizer {...{ symmetric, onFocus: focus, onBlur: blur, onResize: resize }}>
-            <img className={classes.image} data-symmetric={symmetric} {...{ src, width, height }} />
-          </Resizer>
-          <span className={classes.text}>{'\u{1F4F7}'}</span>
-      </span>
-    </>;
+    return <span data-offset-key={offsetKey} draggable={true}
+      onDragStart={this.onDragStart} {...rootProps}
+    >
+      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
+        <img className={classes.image}
+          data-symmetric={symmetric}
+          {...{ src, width, height }}
+        />
+      </Resizer>
+      <span data-text={true} className={classes.text}>{'\u{1F4F7}'}</span>
+    </span>;
   }
 }
 

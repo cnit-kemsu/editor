@@ -15,16 +15,12 @@ const vertex = {
   background: 'lightblue'
 };
 
-export const ResizingFrame = makeStyles({
+export const Resizer = {
   root: {
     position: 'relative',
-    display: 'inline-block'
-  },
-  borderFrame: {
-    position: 'absolute',
-    width: '100%',
-    height: 'calc(100% - 4px)',
-    cursor: 'move'
+    display: 'inline-block',
+    cursor: 'move',
+    userSelect: 'text'
   },
   topBorder: {
     ...border,
@@ -45,12 +41,12 @@ export const ResizingFrame = makeStyles({
   },
   bottomBorder: {
     ...border,
-    bottom: '0',
+    bottom: '2px',
     left: '0',
     right: '0',
     height: borderWidth,
     borderBottom: borderStyle,
-    cursor: symmetric => symmetric ? undefined : 's-resize'
+    cursor: ({ symmetric }) => symmetric ? undefined : 's-resize'
   },
   leftBorder: {
     ...border,
@@ -67,13 +63,13 @@ export const ResizingFrame = makeStyles({
   },
   bottomRightVerterx: {
     ...vertex,
-    bottom: '-3px',
+    bottom: '-1px',
     right: '-3px',
-    cursor: symmetric => symmetric ? undefined : 'se-resize'
+    cursor: ({ symmetric }) => symmetric ? undefined : 'se-resize'
   },
   bottomLeftVerterx: {
     ...vertex,
-    bottom: '-3px',
+    bottom: '-1px',
     left: '-3px'
   },
   topLeftVerterx: {
@@ -81,7 +77,7 @@ export const ResizingFrame = makeStyles({
     top: '-3px',
     left: '-3px'
   }
-});
+};
 
 export const Image = {
   image: {

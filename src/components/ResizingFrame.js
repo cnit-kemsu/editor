@@ -5,7 +5,7 @@ function ResizingFrame({ focused, symmetric, onClick, startHorizontalResizing, s
   const classes = useStyles(symmetric);
   return <span className={classes.root} {...{ ref, onClick }}>
 
-    {focused && <span className={classes.borderFrame}>
+    {focused && <>
 
       <span className={classes.topBorder} />
       <span className={classes.rightBorder} onMouseDown={startHorizontalResizing} />
@@ -17,7 +17,7 @@ function ResizingFrame({ focused, symmetric, onClick, startHorizontalResizing, s
       <span className={classes.bottomLeftVerterx} />
       <span className={classes.topLeftVerterx} />
 
-    </span>}
+    </>}
 
     {children}
 

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import ResizingFrame from './ResizingFrame';
+import { withStyles } from "@material-ui/core/styles";
+//import ResizingFrame from './ResizingFrame';
+import { Resizer as styles } from './styles';
 
-const MIN_SIZE = 22;
-const MAX_SIZE = 1000;
+//const MIN_SIZE = 22;
+//const MAX_SIZE = 1000;
 
 function validateSize(size) {
   //if (size < MIN_SIZE) return MIN_SIZE;
@@ -10,13 +12,9 @@ function validateSize(size) {
   return size;
 }
 
-export class Resizer extends Component {
+class Resizer extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      focused: false
-    };
 
     this.root = React.createRef();
     this.child = React.createRef();
@@ -36,28 +34,23 @@ export class Resizer extends Component {
   }
 
   componentWillUnmount() {
-    if (this.state.focused) this.onBlur();
+    if (this.props.focused) this.onBlur();
   }
 
   focus(event) {
     event.preventDefault();
-
-    if (!this.state.focused) {
-      this.setState({ focused: true });
+    if (!this.props.focused) {
       document.addEventListener('mousedown', this.blur);
       this.props.onFocus?.();
     }
   }
   onBlur() {
     document.removeEventListener('mousedown', this.blur);
-    this.props.onBlur?.();
   }
   blur(event) {
-    //event.preventDefault(); // TODO: find a solution 
-    
     if (!this.root.current.contains(event.target)) {
-      this.setState({ focused: false });
       this.onBlur();
+      this.props.onBlur?.();
     }
   }
 
@@ -85,6 +78,7 @@ export class Resizer extends Component {
   }
 
   startVerticalResizing(event) {
+    if (this.props.symmetric) return;
     event.preventDefault();
     this.original = {
       bottom: this.child.current.getBoundingClientRect().bottom,
@@ -108,6 +102,7 @@ export class Resizer extends Component {
   }
 
   startResizingBoth(event) {
+    if (this.props.symmetric) return;
     event.preventDefault();
     this.original = {
       pageX: event.pageX,
@@ -136,20 +131,29 @@ export class Resizer extends Component {
   }
 
   render() {
-    const { symmetric, children } = this.props;
-    const { state: { focused }, focus,
-      startHorizontalResizing, startVerticalResizing, startResizingBoth } = this;
+    const { classes, focused, children } = this.props;
 
-    return <ResizingFrame {...{
-      ref: this.root,
-      focused,
-      onClick: focus,
-      symmetric,
-      startHorizontalResizing,
-      startVerticalResizing,
-      startResizingBoth
-    }}>
-      {React.cloneElement(children, { ref: this.child })}
-    </ResizingFrame>;
+    return <span className={classes.root} ref={this.root} onClick={this.focus}>
+  
+      {focused && <>
+        <span className={classes.topBorder} />
+        <span className={classes.rightBorder} onMouseDown={this.startHorizontalResizing} />
+        <span className={classes.bottomBorder} onMouseDown={this.startVerticalResizing} />
+        <span className={classes.leftBorder} />
+  
+        <span className={classes.topRightVerterx} />
+        <span className={classes.bottomRightVerterx} onMouseDown={this.startResizingBoth} />
+        <span className={classes.bottomLeftVerterx} />
+        <span className={classes.topLeftVerterx} />
+      </>}
+  
+      {React.cloneElement(children, {
+        ref: this.child,
+        className: focused ? 'resizerChild_disableSelection' : undefined
+      })}
+  
+    </span>;
   }
 }
+
+export default withStyles(styles)(Resizer);

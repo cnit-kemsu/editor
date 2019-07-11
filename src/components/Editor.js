@@ -2,14 +2,15 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Editor as DraftJSEditor, EditorState, CompositeDecorator } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
-import { findImageEntities } from '@lib/findImageEntities';
-import { handlePastedText } from '@lib/handlePastedText';
-import { handleKeyCommand } from '@lib/handleKeyCommand';
-import { handleDroppedFiles } from '@lib/handleDroppedFiles';
-import { insertImage } from '@lib/insertImage';
-import { blockStyleFn } from '@lib/blockStyleFn';
-import Image from '@components/Image';
-import Toolbar from '@components/Toolbar';
+import { findImageEntities } from '../lib/findImageEntities';
+import { handlePastedText } from '../lib/handlePastedText';
+import { handleDrop } from '../lib/handleDrop';
+import { handleKeyCommand } from '../lib/handleKeyCommand';
+import { handleDroppedFiles } from '../lib/handleDroppedFiles';
+import { insertImage } from '../lib/insertImage';
+import { blockStyleFn } from '../lib/blockStyleFn';
+import Image from '../components/Image';
+import Toolbar from '../components/Toolbar';
 
 import { Editor as styles } from './styles';
 
@@ -33,8 +34,6 @@ class Editor extends PureComponent {
 
     this.editor = React.createRef();
 
-    this.disable = this.disable.bind(this);
-    this.enable = this.enable.bind(this);
     this.getEditorState = this.getEditorState.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onChangeCallback = this.onChangeCallback.bind(this);
@@ -43,21 +42,12 @@ class Editor extends PureComponent {
     this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
     this.insertImage = this.insertImage.bind(this);
 
+    this.handleDrop = this.handleDrop.bind(this);
     //this.undo = this.undo.bind(this);
   }
   
   componentDidMount() {
     this.contentNode = ReactDOM.findDOMNode(this.editor.current).querySelector('.public-DraftEditor-content');
-  }
-
-  disable() {
-    this.contentNode.setAttribute('contenteditable', 'false');
-    //this.contentNode.style.userSelect = 'none';
-  }
-
-  enable() {
-    this.contentNode.setAttribute('contenteditable', 'true');
-    //this.contentNode.style.userSelect = 'text';
   }
 
   getEditorState() {
@@ -78,8 +68,6 @@ class Editor extends PureComponent {
     return <Image {...props}
       onChange={this.onChange}
       getEditorState={this.getEditorState}
-      onFocus={this.disable}
-      onBlur={this.enable}
     />;
   }
 
@@ -87,6 +75,15 @@ class Editor extends PureComponent {
     if (!html) return false;
     this.setState({
       editorState: handlePastedText(html, editorState)
+    }, this.onChangeCallback);
+    return true;
+  }
+
+  handleDrop(selection, dataTransfer) {
+    const html = dataTransfer.getHTML();
+    if (!html) return false;
+    this.setState({
+      editorState: handleDrop(selection, html, this.state.editorState)
     }, this.onChangeCallback);
     return true;
   }
@@ -129,6 +126,7 @@ class Editor extends PureComponent {
           handlePastedText={this.handlePastedText}
           handleDroppedFiles={this.handleDroppedFiles}
           blockStyleFn={blockStyleFn}
+          handleDrop={this.handleDrop}
         />
       </div>
       

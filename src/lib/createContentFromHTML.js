@@ -1,6 +1,6 @@
 import { convertFromHTML, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
 
-function replaceImageEntitiesData(entityMap) {
+function replaceImageEntities(entityMap) {
 
   return Object.values(entityMap).map(entity => {
 
@@ -19,10 +19,11 @@ function replaceImageEntitiesData(entityMap) {
 export function createContentFromHTML(html) {
 
   return convertFromHTML(html)
-  |> ContentState.createFromBlockArray(#.contentBlocks, #.entityMap)
-  |> convertToRaw(#)
+  |> ContentState.createFromBlockArray
+  //|> ContentState.createFromBlockArray(#.contentBlocks, #.entityMap)
+  |> convertToRaw
   |> convertFromRaw({
       blocks: #.blocks,
-      entityMap: replaceImageEntitiesData(#.entityMap)
+      entityMap: replaceImageEntities(#.entityMap)
     });
 }

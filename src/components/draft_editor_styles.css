@@ -29,3 +29,7 @@
 .listItem_textAlign_justify {
   text-align: justify;
 }
+
+.resizerChild_disableSelection::selection {
+  background-color: #0000;
+}
