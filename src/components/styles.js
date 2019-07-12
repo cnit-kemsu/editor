@@ -117,3 +117,16 @@ export const Editor = {
     paddingTop: '16px'
   }
 };
+
+export const ColorPalette = makeStyles({
+  root: {
+    width: 'fit-content'
+  },
+  colorUnit: {
+    width: '16px',
+    height: '16px',
+    display: 'inline-block',
+    marginRight: '4px',
+    cursor: 'pointer'
+  }
+});

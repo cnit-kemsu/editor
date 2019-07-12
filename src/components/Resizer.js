@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withStyles } from "@material-ui/core/styles";
-//import ResizingFrame from './ResizingFrame';
 import { Resizer as styles } from './styles';
 
 //const MIN_SIZE = 22;
