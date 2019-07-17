@@ -33,3 +33,7 @@
 .resizerChild_disableSelection::selection {
   background-color: #0000;
 }
+
+::selection {
+  background-color: #7777;
+}

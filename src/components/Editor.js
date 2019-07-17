@@ -129,6 +129,7 @@ class Editor extends PureComponent {
           handleDroppedFiles={this.handleDroppedFiles}
           blockStyleFn={blockStyleFn}
           customStyleFn={customStyleFn}
+          //stripPastedStyles={true}
         />
       </div>
       

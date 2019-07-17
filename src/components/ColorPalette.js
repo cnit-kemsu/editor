@@ -2,11 +2,15 @@ import React from 'react';
 import colors from '../lib/colorPalette';
 import { ColorPalette as useStyles } from './styles';
 
+function preventDefault(event) {
+  event.preventDefault();
+}
+
 function hsl([h, s, l]) {
   return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
-export function ColorPalette() {
+function ColorPalette({ onPickColor }) {
 
   const classes = useStyles();
   return <div className={classes.root}>
@@ -17,6 +21,11 @@ export function ColorPalette() {
           (color, _index) => <span key={_index}
             className={classes.colorUnit}
             style={{ backgroundColor: hsl(color) }}
+            onMouseDown={preventDefault}
+            onClick={event => {
+              //event.preventDefault();
+              onPickColor(color);
+            }}
           />
         )}
 
@@ -24,3 +33,5 @@ export function ColorPalette() {
     )}
   </div>;
 }
+
+export default React.memo(ColorPalette);

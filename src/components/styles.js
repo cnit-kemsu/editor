@@ -120,7 +120,9 @@ export const Editor = {
 
 export const ColorPalette = makeStyles({
   root: {
-    width: 'fit-content'
+    width: 'fit-content',
+    padding: '8px 4px 4px 8px',
+    backgroundColor: '#f5f5f5'
   },
   colorUnit: {
     width: '16px',

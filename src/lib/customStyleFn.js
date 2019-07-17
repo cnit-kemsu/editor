@@ -1,14 +1,34 @@
-export function customStyleFn(style, block) {
-  const inlineStyles = style.toArray();
-  console.log(style);
-  console.log(style.toArray());
-  //console.log(block);
+const inlineStylesMap = {
+  TEXT_COLOR: value => ({
+    color: value
+  }),
+  FILL_COLOR: value => ({
+    backgroundColor: value
+  }),
+  STRIKETHROUGH: {
+    textDecoration: 'line-through'
+  },
+  SUPERSCRIPT: {
+    verticalAlign: 'super',
+    fontSize: '80%'
+  },
+  SUBSCRIPT: {
+    verticalAlign: 'sub',
+    fontSize: '80%'
+  }
+};
 
-  let color = inlineStyles.find(_style => _style.substring(0, 5) === 'COLOR');
-  if (color) color = color.substring(5, color.length);
+export function customStyleFn(styles) {
+  const inlineStyles = styles.toArray();
 
-  const output = {};
-  if (color) output.color = color;
-
-  return output;
+  return inlineStyles.reduce(
+    (style, currentInlineStyle) => {
+      const [name, value] = currentInlineStyle.split('=');
+      const styleProps = inlineStylesMap[name];
+      return styleProps === undefined ? style : {
+        ...style,
+        ...typeof styleProps === 'function' ? styleProps(value) : styleProps
+      };
+    }
+  , {});
 }
