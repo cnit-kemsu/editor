@@ -130,6 +130,12 @@ class Editor extends PureComponent {
           blockStyleFn={blockStyleFn}
           customStyleFn={customStyleFn}
           //stripPastedStyles={true}
+          // onBlur={
+          //   e => {
+          //     e.preventDefault();
+          //     this.editor.current.focus();
+          //   }
+          // }
         />
       </div>
       

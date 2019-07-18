@@ -37,3 +37,9 @@
 ::selection {
   background-color: #7777;
 }
+
+.public-DraftStyleDefault-block {
+  font-family: Roboto, sans-serif;
+  position: relative;
+  white-space: pre-wrap;
+}

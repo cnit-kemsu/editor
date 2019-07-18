@@ -29,6 +29,8 @@ import InlineStyleButton from './InlineStyleButton';
 import BlockTypeButton from './BlockTypeButton';
 import BlockDataButton from './BlockDataButton';
 import ColorPickerButton from './ColorPickerButton';
+import FontSizePicker from './FontSizePicker';
+import FontFamilyPicker from './FontFamilyPicker';
 
 import { Toolbar as styles } from './styles';
 
@@ -88,6 +90,7 @@ export class Toolbar extends PureComponent {
     const { toggleInlineStyle, applyInlineStyleWithValue, toggleBlockType, mergeBlockData } = this;
 
     const inlineStyles = editorState.getCurrentInlineStyle();
+    const _styles = inlineStyles.toArray();
     const selectedBlocks = getSelectedBlocks(editorState);
     const blockType = getBlockType(selectedBlocks);
     const blocksData = selectedBlocks.map(toData);
@@ -96,7 +99,7 @@ export class Toolbar extends PureComponent {
 
       <ToolbarContext.Provider value={{
         toggleInlineStyle, applyInlineStyleWithValue, toggleBlockType, mergeBlockData,
-        inlineStyles, blockType, blocksData
+        inlineStyles, _styles, blockType, blocksData
       }}>
 
         <InlineStyleButton value="BOLD"><BoldIcon /></InlineStyleButton>
@@ -105,6 +108,9 @@ export class Toolbar extends PureComponent {
         <InlineStyleButton value="STRIKETHROUGH"><StrikethroughIcon /></InlineStyleButton>
         <InlineStyleButton value="SUPERSCRIPT"><SuperscriptIcon /></InlineStyleButton>
         <InlineStyleButton value="SUBSCRIPT"><SubscriptIcon /></InlineStyleButton>
+
+        <FontSizePicker />
+        <FontFamilyPicker />
 
         <ColorPickerButton value="TEXT_COLOR"><ColorTextIcon /></ColorPickerButton>
         <ColorPickerButton value="FILL_COLOR"><ColorFillIcon /></ColorPickerButton>

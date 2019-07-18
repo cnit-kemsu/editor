@@ -11,6 +11,8 @@ function adjustBlockText(block) {
 const stylesMap = {
   'color': value => 'TEXT_COLOR=' + value,
   'background-color': value => 'FILL_COLOR=' + value,
+  'font-size': value => 'FONT_SIZE=' + value.replace('px', ''),
+  'font-family': value => 'FONT_FAMILY=' + value.split(',')[0],
   'textDecoration': value => value === 'line-through' ? 'STRIKETHROUGH' : 'UNDERLINE',
   'vertical-align': value => value === 'super' ? 'SUPERSCRIPT' : 'SUBSCRIPT',
 };

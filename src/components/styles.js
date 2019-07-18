@@ -132,3 +132,9 @@ export const ColorPalette = makeStyles({
     cursor: 'pointer'
   }
 });
+
+export const Picker = {
+  select: {
+    margin: '0px 8px'
+  }
+};

@@ -5,6 +5,12 @@ const inlineStylesMap = {
   FILL_COLOR: value => ({
     backgroundColor: value
   }),
+  FONT_SIZE: value => ({
+    fontSize: value + 'px'
+  }),
+  FONT_FAMILY: value => ({
+    fontFamily: value
+  }),
   STRIKETHROUGH: {
     textDecoration: 'line-through'
   },
