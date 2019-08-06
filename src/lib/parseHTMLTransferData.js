@@ -8,11 +8,23 @@ function adjustBlockText(block) {
   block.text = text.substring(0, lastIndex);
 }
 
+function fontSize(value) {
+  const _value = value.slice(0, -2);
+  if (isNaN(_value)) return null;
+  return 'FONT_SIZE=' + _value;
+}
+
+function fontFamily(value) {
+  const _value = value.split(',')[0];
+  if (_value === 'Roboto') return null;
+  return 'FONT_FAMILY=' + _value;
+}
+
 const stylesMap = {
   'color': value => 'TEXT_COLOR=' + value,
   'background-color': value => 'FILL_COLOR=' + value,
-  'font-size': value => 'FONT_SIZE=' + value.replace('px', ''),
-  'font-family': value => 'FONT_FAMILY=' + value.split(',')[0],
+  'font-size': fontSize,
+  'font-family': fontFamily,
   'textDecoration': value => value === 'line-through' ? 'STRIKETHROUGH' : 'UNDERLINE',
   'vertical-align': value => value === 'super' ? 'SUPERSCRIPT' : 'SUBSCRIPT',
 };
@@ -30,8 +42,8 @@ function parseInlineStyles(html) {
     const { name, value } = styleProp.groups;
     const inlineStyle = stylesMap[name];
     if (inlineStyle !== undefined && defaultValues[name] !== value) {
-      typeof inlineStyle === 'function' && inlineStyle(value) || inlineStyle
-      |> inlineStyles.push(#);
+      const _inlineStyle = typeof inlineStyle === 'function' ? inlineStyle(value) : inlineStyle;
+      if (_inlineStyle != null) inlineStyles.push(_inlineStyle);
     }
     styleProp = findStyleProp.exec(html);
   }
@@ -43,6 +55,7 @@ const findStyle = /style="(?<style>.*?)"/;
 function adjustBlockInlineStyleRanges(block, fragment, offset) {
 
   const { text } = fragment.groups;
+  if (text.substring(0, 4) === '<img') return 2;
   const styleHTML = findStyle.exec(fragment[0])?.groups.style;
   const length = text.length;
   if (styleHTML) {
@@ -84,9 +97,15 @@ function adjustContent({ blocks, entityMap }, html) {
   const totalBlocks = blocks.length;
   if (totalBlocks === 1) adjustBlock(blocks[0], _html);
   else {
-    const findBlock = /<div data-block="true".*?>.*?<div.*?>(?<content>.*?)<\/div>.*?<\/div>/g;
+    const findBlock = /<(div|li).*?data-block="true".*?>.*?<div.*?>(?<content>.*?)<\/div>.*?<\/(div|li)>/g;
     for (let index = 0; index < totalBlocks; index++) {
-      const blockHTMLContent = findBlock.exec(_html).groups.content;
+      let _block = findBlock.exec(_html);
+      // if (_block == null) {
+      //   const findListIemBlock = /<li.*?data-block="true".*?>.*?<div.*?>(?<content>.*?)<\/div>.*?<\/li>/g;
+      //   _block = findListIemBlock.exec(_html);
+      // }
+      if (_block == null && index === totalBlocks - 1) break;
+      const blockHTMLContent = _block.groups.content;
       adjustBlock(blocks[index], blockHTMLContent);
     }
   }

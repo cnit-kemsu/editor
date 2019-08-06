@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import { Editor as DraftEditor, EditorState, CompositeDecorator } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
 import { findImageEntities } from '../lib/findImageEntities';
@@ -21,35 +22,47 @@ class Editor extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.decorator = new CompositeDecorator([{
+    const decorator = new CompositeDecorator([{
       strategy: findImageEntities,
       component: React.memo(this.renderImage.bind(this))
     }]);
 
+    this.state = {
+      editorState: this.props.content == null
+        ? EditorState.createEmpty(decorator)
+        : EditorState.createWithContent(this.props.content, decorator)
+    };
+
+    this.editor = React.createRef();
+
     this.getEditorState = this.getEditorState.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onChangeCallback = this.onChangeCallback.bind(this);
     this.handlePastedText = this.handlePastedText.bind(this);
     this.handleKeyCommand = handleKeyCommand.bind(this);
     this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
     this.insertImage = this.insertImage.bind(this);
 
     this.handleDrop = this.handleDrop.bind(this);
+    //this.undo = this.undo.bind(this);
   }
   
-  get value() {
-    const { value } = this.props;
-    if (value == null) return EditorState.createEmpty(this.decorator);
-    return value instanceof EditorState
-      ? value
-      : EditorState.createWithContent(value, this.decorator);
-  } 
+  componentDidMount() {
+    this.contentNode = ReactDOM.findDOMNode(this.editor.current).querySelector('.public-DraftEditor-content');
+  }
 
   getEditorState() {
-    return this.value;
+    return this.state.editorState;
   }
 
   onChange(editorState) {
-    this.props.onChange(editorState);
+    this.setState({
+      editorState
+    }, this.onChangeCallback);
+  }
+
+  onChangeCallback() {
+    this.props.onChange?.(this.state.editorState);
   }
 
   renderImage(props) {
@@ -61,38 +74,54 @@ class Editor extends PureComponent {
 
   handlePastedText(text, html, editorState) {
     if (!html) return false;
-    handlePastedText(html, editorState)
-    |> this.onChange(#);
+    this.setState({
+      editorState: handlePastedText(html, editorState)
+    }, this.onChangeCallback);
     return true;
   }
 
   handleDrop(selection, dataTransfer) {
     const html = dataTransfer.getHTML();
     if (!html) return false;
-    handleDrop(selection, html, this.value)
-    |> handlePastedText(html, #)
-    |> this.onChange(#);
+    this.setState({
+      editorState: handleDrop(selection, html, this.state.editorState)
+    }, this.onChangeCallback);
     return true;
   }
 
   handleDroppedFiles(selection, files) {
-    const editorState = handleDroppedFiles(selection, files, this.value);
-    if (editorState) this.onChange(editorState);
+    const editorState = handleDroppedFiles(selection, files, this.state.editorState);
+    if (editorState) this.setState({ editorState }, this.onChangeCallback);
   }
 
   insertImage(src) {
-    insertImage(src, this.value)
-    |> this.onChange(#);
+    this.setState(
+      ({ editorState }) => ({
+        editorState: insertImage(src, editorState)
+      }),
+      this.onChangeCallback
+    );
   }
+
+  // undo(e) {
+  //   e.preventDefault();
+
+  //   this.setState({
+  //     editorState: EditorState.undo(this.state.editorState)
+  //   });
+  // }
 
   render() {
     const { classes } = this.props;
 
     return <div className={classes.root}>
-      <Toolbar editorState={this.value} onChange={this.onChange} />
+      {/* <div>
+        <button onClick={this.undo}>undo</button>
+      </div> */}
+      <Toolbar editorState={this.state.editorState} onChange={this.onChange} />
       <div className={classes.content}>
-        <DraftEditor
-          editorState={this.value}
+        <DraftEditor ref={this.editor}
+          editorState={this.state.editorState}
           onChange={this.onChange}
           handleKeyCommand={this.handleKeyCommand}
           handlePastedText={this.handlePastedText}
@@ -100,6 +129,13 @@ class Editor extends PureComponent {
           handleDroppedFiles={this.handleDroppedFiles}
           blockStyleFn={blockStyleFn}
           customStyleFn={customStyleFn}
+          //stripPastedStyles={true}
+          // onBlur={
+          //   e => {
+          //     e.preventDefault();
+          //     this.editor.current.focus();
+          //   }
+          // }
         />
       </div>
       

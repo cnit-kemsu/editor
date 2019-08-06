@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from "@material-ui/core/styles";
@@ -8,7 +8,7 @@ import { createContentFromHTML } from '@lib/createContentFromHTML';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';
 
-const content = createContentFromHTML(`
+const initEditorState = createContentFromHTML(`
   <div>111111<img src="${imgUrl}" width="100px" />222222</div>
   <div>333333444444</div>
   <ul>
@@ -19,6 +19,8 @@ const content = createContentFromHTML(`
 
 function App() {
 
+  const [editorState, changeEditorState] = useState(initEditorState);
+
   console.log('render App');
 
   const editor = useRef();
@@ -28,7 +30,8 @@ function App() {
     editor.current.insertImage(imageUrl);
   };
 
-  const logEditorState = (editorState) => {
+  const onChange = (editorState) => {
+    changeEditorState(editorState);
     console.log(convertToRaw(editorState.getCurrentContent()));
   };
 
@@ -36,7 +39,7 @@ function App() {
     <div>
       <button onClick={addImage}>add image</button>
     </div>
-    <Editor ref={editor} content={content} onChange={logEditorState} />
+    <Editor ref={editor} value={editorState} onChange={onChange} />
   </>;
 }
 
