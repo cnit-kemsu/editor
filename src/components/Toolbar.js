@@ -106,8 +106,8 @@ export class Toolbar extends PureComponent {
         <InlineStyleButton value="ITALIC"><ItalicIcon /></InlineStyleButton>
         <InlineStyleButton value="UNDERLINE"><UnderlinedIcon /></InlineStyleButton>
         <InlineStyleButton value="STRIKETHROUGH"><StrikethroughIcon /></InlineStyleButton>
-        <InlineStyleButton value="SUPERSCRIPT"><SuperscriptIcon /></InlineStyleButton>
-        <InlineStyleButton value="SUBSCRIPT"><SubscriptIcon /></InlineStyleButton>
+        <InlineStyleButton value="SCRIPT=SUP"><SuperscriptIcon /></InlineStyleButton>
+        <InlineStyleButton value="SCRIPT=SUB"><SubscriptIcon /></InlineStyleButton>
 
         <FontSizePicker />
         <FontFamilyPicker />

@@ -70,7 +70,6 @@ class Editor extends PureComponent {
     const html = dataTransfer.getHTML();
     if (!html) return false;
     handleDrop(selection, html, this.value)
-    |> handlePastedText(html, #)
     |> this.onChange(#);
     return true;
   }
@@ -89,7 +88,9 @@ class Editor extends PureComponent {
     const { classes } = this.props;
 
     return <div className={classes.root}>
+
       <Toolbar editorState={this.value} onChange={this.onChange} />
+      
       <div className={classes.content}>
         <DraftEditor
           editorState={this.value}

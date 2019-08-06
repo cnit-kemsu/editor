@@ -11,17 +11,21 @@ const inlineStylesMap = {
   FONT_FAMILY: value => ({
     fontFamily: value
   }),
-  STRIKETHROUGH: {
-    textDecoration: 'line-through'
-  },
-  SUPERSCRIPT: {
-    verticalAlign: 'super',
-    fontSize: '80%'
-  },
-  SUBSCRIPT: {
-    verticalAlign: 'sub',
-    fontSize: '80%'
-  }
+  STRIKETHROUGH: (value, style) => ({
+    textDecoration: style.textDecoration === undefined ? 'line-through' : style.textDecoration + ' line-through'
+  }),
+  UNDERLINE: (value, style) => ({
+    textDecoration: style.textDecoration === undefined ? 'underline' : style.textDecoration + ' underline'
+  }),
+  SCRIPT: (value) => ({
+    verticalAlign: value === 'SUP' ? 'super' : ' sub'
+  }),
+  // SUPERSCRIPT: {
+  //   verticalAlign: 'super'
+  // },
+  // SUBSCRIPT: {
+  //   verticalAlign: 'sub'
+  // }
 };
 
 export function customStyleFn(styles) {
@@ -33,7 +37,7 @@ export function customStyleFn(styles) {
       const styleProps = inlineStylesMap[name];
       return styleProps === undefined ? style : {
         ...style,
-        ...typeof styleProps === 'function' ? styleProps(value) : styleProps
+        ...typeof styleProps === 'function' ? styleProps(value, style) : styleProps
       };
     }
   , {});

@@ -8,13 +8,28 @@ function adjustBlockText(block) {
   block.text = text.substring(0, lastIndex);
 }
 
-function fontSize(value) {
-  const _value = value.slice(0, -2);
-  if (isNaN(_value)) return null;
+const fontSizeNames = {
+  'medium': '16',
+  'large': '18',
+  'larger': '19',
+  'x-large': '24',
+  'xx-large': '32',
+  'small': '13',
+  'smaller': '13',
+  'x-small': '10',
+  'xx-small': '9'
+};
+
+function parseFontSize(value) {
+  let _value = fontSizeNames[value];
+  if (_value === undefined && value.substring(2) === 'px') {
+    _value = value.slice(0, -2);
+  }
+  if (_value == null && _value === '16') return null;
   return 'FONT_SIZE=' + _value;
 }
 
-function fontFamily(value) {
+function parseFontFamily(value) {
   const _value = value.split(',')[0];
   if (_value === 'Roboto') return null;
   return 'FONT_FAMILY=' + _value;
@@ -23,15 +38,30 @@ function fontFamily(value) {
 const stylesMap = {
   'color': value => 'TEXT_COLOR=' + value,
   'background-color': value => 'FILL_COLOR=' + value,
-  'font-size': fontSize,
-  'font-family': fontFamily,
-  'textDecoration': value => value === 'line-through' ? 'STRIKETHROUGH' : 'UNDERLINE',
+  'font-size': parseFontSize,
+  'font-family': parseFontFamily,
+  'text-decoration': [
+    value => {
+      if (value.includes('line-through')) return 'STRIKETHROUGH';
+    },
+    value => {
+      if (value.includes('underline')) return 'UNDERLINE';
+    }
+  ],
   'vertical-align': value => value === 'super' ? 'SUPERSCRIPT' : 'SUBSCRIPT',
 };
 
 const defaultValues = {
-  'color': 'rgb(0, 0, 0)'
+  'color': 'rgb(0, 0, 0)',
+  'font-size': 'medium',
+  'font-family': 'Roboto, sans-serif'
 };
+
+function getInlineStyle(inlineStyle, value) {
+  return typeof inlineStyle === 'function'
+    ? inlineStyle(value)
+    : inlineStyle;
+}
 
 function parseInlineStyles(html) {
 
@@ -42,8 +72,12 @@ function parseInlineStyles(html) {
     const { name, value } = styleProp.groups;
     const inlineStyle = stylesMap[name];
     if (inlineStyle !== undefined && defaultValues[name] !== value) {
-      const _inlineStyle = typeof inlineStyle === 'function' ? inlineStyle(value) : inlineStyle;
-      if (_inlineStyle != null) inlineStyles.push(_inlineStyle);
+      const _inlineStyle = inlineStyle instanceof Array
+        ? inlineStyle.map(_style => getInlineStyle(_style, value))
+        : [getInlineStyle(inlineStyle, value)];
+      for(const _style of _inlineStyle) {
+        if (_style != null) inlineStyles.push(_style);
+      }
     }
     styleProp = findStyleProp.exec(html);
   }
@@ -55,7 +89,7 @@ const findStyle = /style="(?<style>.*?)"/;
 function adjustBlockInlineStyleRanges(block, fragment, offset) {
 
   const { text } = fragment.groups;
-  if (text.substring(0, 4) === '<img') return 2;
+  if (text.substring(0, 4) === '<img') return 1;
   const styleHTML = findStyle.exec(fragment[0])?.groups.style;
   const length = text.length;
   if (styleHTML) {
@@ -99,11 +133,7 @@ function adjustContent({ blocks, entityMap }, html) {
   else {
     const findBlock = /<(div|li).*?data-block="true".*?>.*?<div.*?>(?<content>.*?)<\/div>.*?<\/(div|li)>/g;
     for (let index = 0; index < totalBlocks; index++) {
-      let _block = findBlock.exec(_html);
-      // if (_block == null) {
-      //   const findListIemBlock = /<li.*?data-block="true".*?>.*?<div.*?>(?<content>.*?)<\/div>.*?<\/li>/g;
-      //   _block = findListIemBlock.exec(_html);
-      // }
+      const _block = findBlock.exec(_html);
       if (_block == null && index === totalBlocks - 1) break;
       const blockHTMLContent = _block.groups.content;
       adjustBlock(blocks[index], blockHTMLContent);

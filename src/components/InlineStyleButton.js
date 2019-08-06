@@ -9,12 +9,17 @@ export class InlineStyleButton extends PureComponent {
 
   constructor(props) {
     super(props);
+
+    const [styleName, styleValue] = this.props.value.split('=');
+    if (styleValue !== undefined) this.applyInlineStyle = () => this.context.applyInlineStyleWithValue(styleName, styleValue);
+    else this.applyInlineStyle = () => this.context.toggleInlineStyle(styleName, styleValue);
+
     this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
   }
 
   toggleInlineStyle(event) {
     event.preventDefault();
-    this.context.toggleInlineStyle(this.props.value);
+    this.applyInlineStyle();
   }
   
   render() {
