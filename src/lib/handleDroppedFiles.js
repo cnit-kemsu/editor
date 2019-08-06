@@ -1,4 +1,4 @@
-import { insertImage } from '@lib/insertImage';
+import { insertImage } from './insertImage';
 
 const imageTypes = [
   'image/jpeg',

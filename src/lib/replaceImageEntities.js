@@ -1,4 +1,4 @@
-import { attributeToProp } from '@lib/attributeToProp';
+import { attributeToProp } from './attributeToProp';
 
 export function replaceImageEntities(entityMap, html) {
   const findImageTag = /<img.+?>/g;
