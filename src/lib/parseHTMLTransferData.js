@@ -53,13 +53,21 @@ const stylesMap = {
       if (value.includes('underline')) return 'UNDERLINE';
     }
   ],
-  'vertical-align': value => verticalAlign[value],
+  'vertical-align': value => verticalAlign[value]
 };
 
-const defaultValues = {
+const dataMap = {
+  'text-align': value => ({ textAlign: value })
+};
+
+const defaultStyleValues = {
   'color': 'rgb(0, 0, 0)',
   'font-size': 'medium',
   'font-family': 'Roboto, sans-serif'
+};
+
+const defaultDataValues = {
+  'text-align': 'left'
 };
 
 function getInlineStyle(inlineStyle, value) {
@@ -76,7 +84,7 @@ function parseInlineStyles(html) {
   while (styleProp !== null) {
     const { name, value } = styleProp.groups;
     const inlineStyle = stylesMap[name];
-    if (inlineStyle !== undefined && defaultValues[name] !== value) {
+    if (inlineStyle !== undefined && defaultStyleValues[name] !== value) {
       const _inlineStyle = inlineStyle instanceof Array
         ? inlineStyle.map(_style => getInlineStyle(_style, value))
         : [getInlineStyle(inlineStyle, value)];
@@ -89,11 +97,33 @@ function parseInlineStyles(html) {
   return inlineStyles.length === 0 ? null : inlineStyles;
 }
 
+function adjustBlockData(block, html) {
+  if (!html) return;
+
+  const findStyleProp = /(?<name>\S*?)\s*?:\s*?(?<value>\S.*?)\s*?;/g;
+  let data = {};
+  let styleProp = findStyleProp.exec(html);
+  while (styleProp !== null) {
+    const { name, value } = styleProp.groups;
+
+    const dataProps = dataMap[name];
+    if (dataProps !== undefined && defaultDataValues[name] !== value) {
+      data = { ...data, ...dataProps(value) };
+    }
+
+    styleProp = findStyleProp.exec(html);
+  }
+  block.data = { ...block.data, ...data };
+}
+
 const findStyle = /style="(?<style>.*?)"/;
 
 function adjustBlockInlineStyleRanges(block, fragment, offset) {
 
-  const { text } = fragment.groups;
+  const { text, dataEmpty } = fragment.groups;
+
+  if (dataEmpty === "true") block.text = '';
+
   if (text.substring(0, 4) === '<img') return 1;
   const styleHTML = findStyle.exec(fragment[0])?.groups.style;
   const length = text.length;
@@ -117,7 +147,7 @@ function adjustBlock(block, html) {
   adjustBlockText(block);
 
   let offset = 0;
-  const findTextFragment = /<span data-offset-key=".*?>.*?<span.*?>(?<text>.*?)<\/span>.*?<\/span>/g;
+  const findTextFragment = /<span data-offset-key=".*?>.*?<span.*?data-empty="(?<dataEmpty>.*?)".*?>(?<text>.*?)<\/span>.*?<\/span>/g;
   let fragment = findTextFragment.exec(html);
   if (fragment === null) {
     fragment = /<span.*?>(?<text>.*?)<\/span>/g.exec(html);
@@ -140,6 +170,10 @@ function adjustContent({ blocks, entityMap }, html) {
     for (let index = 0; index < totalBlocks; index++) {
       const _block = findBlock.exec(_html);
       if (_block == null && index === totalBlocks - 1) break;
+
+      const styleHTML = findStyle.exec(_block[0])?.groups.style;
+      adjustBlockData(blocks[index], styleHTML);
+
       const blockHTMLContent = _block.groups.content;
       adjustBlock(blocks[index], blockHTMLContent);
     }
@@ -152,10 +186,20 @@ function adjustContent({ blocks, entityMap }, html) {
 
 export function parseHTMLTransferData(html) {
   
-  return convertFromHTML(html)
+  const _html = html.replace(/<br data-text="true">/g, '<span data-text="true" data-empty="true">0</span>');
+  return convertFromHTML(_html)
   //|> ContentState.createFromBlockArray
   |> ContentState.createFromBlockArray(#.contentBlocks, #.entityMap)
   |> convertToRaw
-  |> adjustContent(#, html)
+  |> adjustContent(#, _html)
   |> convertFromRaw;
+
+  // const _html = html.replace(/<br data-text="true">/g, '<span data-text="true" data-empty="true">0</span>');
+  // //const __html = _html.replace(/<li/g, '<div').replace(/<\/li/g, '</div');
+  // const cont1 = convertFromHTML(_html);
+  // const cont2 = ContentState.createFromBlockArray(cont1.contentBlocks, cont1.entityMap);
+  // const cont3 = convertToRaw(cont2);
+  // //return adjustContent(cont3, __html)
+  // return adjustContent(cont3, _html)
+  // |> convertFromRaw;
 }
