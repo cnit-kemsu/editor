@@ -32,24 +32,29 @@ export class FontSizePicker extends PureComponent {
       target: null,
       open: false
     };
+
+    this.canOpen = true;
     
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
     this.applyFontSize = this.applyFontSize.bind(this);
 
     this.popper = React.createRef();
+    this.button = React.createRef();
+
     this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
   open(event) {
     event.preventDefault();
-    if (!this.state.open) {
+    if (this.canOpen && !this.state.open) {
       this.setState({
         target: event.currentTarget,
         open: true
       });
       document.addEventListener('mousedown', this.handleClickOutside);
     }
+    this.canOpen = true;
   }
   close() {
     this.onClose();
@@ -63,6 +68,7 @@ export class FontSizePicker extends PureComponent {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
   handleClickOutside(event) {
+    if (this.button.current.contains(event.target)) this.canOpen = false;
     if (!this.popper.current.contains(event.target)) this.close();
   }
 
@@ -80,7 +86,7 @@ export class FontSizePicker extends PureComponent {
 
     return <>
 
-      <Select className={classes.select} SelectDisplayProps={{ onMouseDown: preventDefault, onClick: this.open }} value={value}>
+      <Select ref={this.button} className={classes.select} style={{ minWidth: '50px' }} SelectDisplayProps={{ onMouseDown: preventDefault, onClick: this.open }} value={value}>
         <MenuItem value={value}>{value}</MenuItem>
       </Select>
 
@@ -88,7 +94,7 @@ export class FontSizePicker extends PureComponent {
         <Paper>
           <MenuList>
             {fontSizeArray.map(
-              (fontSize, index) => <MenuItem key={index}
+              (fontSize, index) => <MenuItem key={index} className={classes.menuItem}
                 onMouseDown={preventDefault}
                 onClick={event => {
                   //event.preventDefault();

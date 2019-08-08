@@ -17,15 +17,12 @@ const inlineStylesMap = {
   UNDERLINE: (value, style) => ({
     textDecoration: style.textDecoration === undefined ? 'underline' : style.textDecoration + ' underline'
   }),
-  SCRIPT: (value) => ({
-    verticalAlign: value === 'SUP' ? 'super' : ' sub'
-  }),
-  // SUPERSCRIPT: {
-  //   verticalAlign: 'super'
-  // },
-  // SUBSCRIPT: {
-  //   verticalAlign: 'sub'
-  // }
+  SUPERSCRIPT: {
+    verticalAlign: 'super'
+  },
+  SUBSCRIPT: {
+    verticalAlign: 'sub'
+  }
 };
 
 export function customStyleFn(styles) {

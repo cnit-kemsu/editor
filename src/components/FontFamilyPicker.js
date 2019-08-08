@@ -17,22 +17,19 @@ function isFontFamilyStyle(style) {
 }
 
 const fontFamilyArray = [
-  ['Roboto', 'sans-serif'],
+  'Roboto',
+  'Open Sans',
   'Arial',
-  'Helvetica',
+  //'Helvetica',
   'Times New Roman',
-  'Times',
   'Courier New',
-  'Courier',
   'Verdana',
   'Georgia',
-  'Palatino',
   'Garamond',
-  'Bookman',
   'Comic Sans MS',
   'Trebuchet MS',
-  'Arial Black',
-  'Impact'
+  //'Arial Black',
+  //'Impact'
 ];
 
 export class FontFamilyPicker extends PureComponent {
@@ -45,24 +42,29 @@ export class FontFamilyPicker extends PureComponent {
       target: null,
       open: false
     };
+
+    this.canOpen = true;
     
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
     this.applyFontFamily = this.applyFontFamily.bind(this);
 
     this.popper = React.createRef();
+    this.button = React.createRef();
+
     this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
   open(event) {
     event.preventDefault();
-    if (!this.state.open) {
+    if (this.canOpen && !this.state.open) {
       this.setState({
         target: event.currentTarget,
         open: true
       });
       document.addEventListener('mousedown', this.handleClickOutside);
     }
+    this.canOpen = true;
   }
   close() {
     this.onClose();
@@ -76,6 +78,7 @@ export class FontFamilyPicker extends PureComponent {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
   handleClickOutside(event) {
+    if (this.button.current.contains(event.target)) this.canOpen = false;
     if (!this.popper.current.contains(event.target)) this.close();
   }
 
@@ -93,7 +96,7 @@ export class FontFamilyPicker extends PureComponent {
 
     return <>
 
-      <Select className={classes.select} SelectDisplayProps={{ onMouseDown: preventDefault, onClick: this.open }} value={value}>
+      <Select ref={this.button} className={classes.select} style={{ minWidth: '170px' }} SelectDisplayProps={{ onMouseDown: preventDefault, onClick: this.open }} value={value}>
         <MenuItem value={value}>{value}</MenuItem>
       </Select>
 
@@ -101,7 +104,7 @@ export class FontFamilyPicker extends PureComponent {
         <Paper>
           <MenuList>
             {fontFamilyArray.map(
-              (fontFamily, index) => <MenuItem key={index}
+              (fontFamily, index) => <MenuItem key={index} className={classes.menuItem}
                 onMouseDown={preventDefault}
                 onClick={event => {
                   //event.preventDefault();

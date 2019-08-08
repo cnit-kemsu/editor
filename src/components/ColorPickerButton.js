@@ -21,24 +21,29 @@ export class ColorPickerButton extends PureComponent {
       target: null,
       open: false
     };
+
+    this.canOpen = true;
     
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
     this.applyColor = this.applyColor.bind(this);
 
     this.popper = React.createRef();
+    this.button = React.createRef();
+
     this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
   open(event) {
     event.preventDefault();
-    if (!this.state.open) {
+    if (this.canOpen && !this.state.open) {
       this.setState({
         target: event.currentTarget,
         open: true
       });
       document.addEventListener('mousedown', this.handleClickOutside);
     }
+    this.canOpen = true;
   }
   close() {
     this.onClose();
@@ -52,6 +57,7 @@ export class ColorPickerButton extends PureComponent {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
   handleClickOutside(event) {
+    if (this.button.current.contains(event.target)) this.canOpen = false;
     if (!this.popper.current.contains(event.target)) this.close();
   }
 
@@ -67,7 +73,7 @@ export class ColorPickerButton extends PureComponent {
 
     return <>
 
-      <Button className={classes.root} color="default"
+      <Button ref={this.button} className={classes.root} color="default"
         onMouseDown={preventDefault} onClick={this.open}
       >
         {children}

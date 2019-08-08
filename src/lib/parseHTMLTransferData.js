@@ -20,6 +20,11 @@ const fontSizeNames = {
   'xx-small': '9'
 };
 
+const verticalAlign = {
+  'super': 'SUPERSCRIPT',
+  'sub': 'SUBSCRIPT'
+};
+
 function parseFontSize(value) {
   let _value = fontSizeNames[value];
   if (_value === undefined && value.substring(2) === 'px') {
@@ -48,7 +53,7 @@ const stylesMap = {
       if (value.includes('underline')) return 'UNDERLINE';
     }
   ],
-  'vertical-align': value => value === 'super' ? 'SUPERSCRIPT' : 'SUBSCRIPT',
+  'vertical-align': value => verticalAlign[value],
 };
 
 const defaultValues = {

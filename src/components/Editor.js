@@ -1,15 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Editor as DraftEditor, EditorState, CompositeDecorator } from 'draft-js';
+import { Editor as DraftEditor } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
-import { findImageEntities } from '../lib/findImageEntities';
 import { handlePastedText } from '../lib/handlePastedText';
 import { handleDrop } from '../lib/handleDrop';
 import { handleKeyCommand } from '../lib/handleKeyCommand';
 import { handleDroppedFiles } from '../lib/handleDroppedFiles';
-import { insertImage } from '../lib/insertImage';
 import { blockStyleFn } from '../lib/blockStyleFn';
 import { customStyleFn } from '../lib/customStyleFn';
-import Image from '../components/Image';
+import { EditorContext } from './EditorContext';
 import Toolbar from '../components/Toolbar';
 
 import { Editor as styles } from './styles';
@@ -17,46 +15,34 @@ import { Editor as styles } from './styles';
 import './draft_editor_styles.css';
 
 class Editor extends PureComponent {
+  //preventNativeChangeEvent = false;
 
   constructor(props) {
     super(props);
 
-    this.decorator = new CompositeDecorator([{
-      strategy: findImageEntities,
-      component: React.memo(this.renderImage.bind(this))
-    }]);
-
     this.getEditorState = this.getEditorState.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.nativeOnChange = this.nativeOnChange.bind(this);
     this.handlePastedText = this.handlePastedText.bind(this);
     this.handleKeyCommand = handleKeyCommand.bind(this);
     this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
-    this.insertImage = this.insertImage.bind(this);
-
     this.handleDrop = this.handleDrop.bind(this);
   }
   
-  get value() {
-    const { value } = this.props;
-    if (value == null) return EditorState.createEmpty(this.decorator);
-    return value instanceof EditorState
-      ? value
-      : EditorState.createWithContent(value, this.decorator);
-  } 
-
   getEditorState() {
-    return this.value;
+    return this.props.editorState;
   }
 
-  onChange(editorState) {
-    this.props.onChange(editorState);
+  onChange(editorState, /*preventNativeChangeEvent = false*/) {
+    //this.preventNativeChangeEvent = preventNativeChangeEvent;
+    this.props.onChange?.(editorState);
   }
 
-  renderImage(props) {
-    return <Image {...props}
-      onChange={this.onChange}
-      getEditorState={this.getEditorState}
-    />;
+  nativeOnChange(editorState) {
+    // if (this.preventNativeChangeEvent) {
+    //   this.preventNativeChangeEvent = false;
+    // } else this.onChange(editorState);
+    this.onChange(editorState);
   }
 
   handlePastedText(text, html, editorState) {
@@ -69,40 +55,40 @@ class Editor extends PureComponent {
   handleDrop(selection, dataTransfer) {
     const html = dataTransfer.getHTML();
     if (!html) return false;
-    handleDrop(selection, html, this.value)
+    handleDrop(selection, html, this.props.editorState)
     |> this.onChange(#);
     return true;
   }
 
   handleDroppedFiles(selection, files) {
-    const editorState = handleDroppedFiles(selection, files, this.value);
+    const editorState = handleDroppedFiles(selection, files, this.props.editorState);
     if (editorState) this.onChange(editorState);
   }
 
-  insertImage(src) {
-    insertImage(src, this.value)
-    |> this.onChange(#);
-  }
-
   render() {
-    const { classes } = this.props;
+    const { classes, editorState, onFocus, onBlur } = this.props;
 
     return <div className={classes.root}>
 
-      <Toolbar editorState={this.value} onChange={this.onChange} />
+      <Toolbar editorState={editorState} onChange={this.onChange} />
       
-      <div className={classes.content}>
-        <DraftEditor
-          editorState={this.value}
-          onChange={this.onChange}
-          handleKeyCommand={this.handleKeyCommand}
-          handlePastedText={this.handlePastedText}
-          handleDrop={this.handleDrop}
-          handleDroppedFiles={this.handleDroppedFiles}
-          blockStyleFn={blockStyleFn}
-          customStyleFn={customStyleFn}
-        />
-      </div>
+      <EditorContext.Provider value={{ onChange: this.onChange, getEditorState: this.getEditorState }}>
+        <div className={classes.content}>
+          <DraftEditor
+            editorState={editorState}
+            onChange={this.nativeOnChange}
+            handleKeyCommand={this.handleKeyCommand}
+            handlePastedText={this.handlePastedText}
+            handleDrop={this.handleDrop}
+            handleDroppedFiles={this.handleDroppedFiles}
+            blockStyleFn={blockStyleFn}
+            customStyleFn={customStyleFn}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            handleReturn={() => undefined}
+          />
+        </div>
+      </EditorContext.Provider>
       
     </div>;
   }

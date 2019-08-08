@@ -58,6 +58,6 @@
     "start": "node_modules/.bin/nodemon --watch webpack.config.babel.js --watch babel.config.js --exec webpack-dev-server"
   },
   "dependencies": {
-    "draft-js": "^0.11.0-beta3"
+    "draft-js": "^0.11.0"
   }
 }

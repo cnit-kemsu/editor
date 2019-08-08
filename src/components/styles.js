@@ -136,5 +136,8 @@ export const ColorPalette = makeStyles({
 export const Picker = {
   select: {
     margin: '0px 8px'
+  },
+  menuItem: {
+    minHeight: '0px'
   }
 };

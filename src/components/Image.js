@@ -3,9 +3,11 @@ import { Modifier, EditorState, SelectionState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
 import { getSelectedKeys } from '../lib/getSelectedKeys';
 import Resizer from './Resizer';
+import { EditorContext } from './EditorContext';
 import { Image as styles } from './styles';
 
 class Image extends PureComponent {
+  static contextType = EditorContext;
 
   constructor(props) {
     super(props);
@@ -17,6 +19,8 @@ class Image extends PureComponent {
     this.onBlur = this.onBlur.bind(this);
     this.resize = this.resize.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
+
+    this.root = React.createRef();
   }
 
   onFocus() {
@@ -31,21 +35,22 @@ class Image extends PureComponent {
     return character.entity === this.props.entityKey;
   }
   getSelection() {
-    const { getEditorState, blockKey } = this.props;
+    const { blockKey } = this.props;
 
-    const offset = getEditorState()
+    const offset = this.context.getEditorState()
       .getCurrentContent().getBlockForKey(blockKey)
       .getCharacterList().findIndex(this.isCurrentEntityKey);
 
-    return SelectionState.createEmpty(blockKey).merge({
+      return SelectionState.createEmpty(blockKey).merge({
       anchorOffset: offset,
-      focusOffset: offset + 2
+      focusOffset: offset + 2,
+      hasFocus: true
     });
   }
 
   resize({ width, height }) {
-    const { getEditorState, entityKey, onChange } = this.props;
-    const editorState = getEditorState();
+    const { entityKey } = this.props;
+    const editorState = this.context.getEditorState();
     const { symmetric, src } = editorState.getCurrentContent().getEntity(entityKey).getData();
     const currentSelection = this.getSelection();
 
@@ -54,21 +59,29 @@ class Image extends PureComponent {
     |> Modifier.applyEntity(#, currentSelection, #.getLastCreatedEntityKey())
     |> EditorState.push(editorState, #, 'apply-entity')
     |> EditorState.forceSelection(#, currentSelection)
-    |> onChange;
+    |> this.context.onChange(#);
   }
 
   forceSelection() {
-    const { getEditorState, onChange } = this.props;
-    const editorState = getEditorState();
+    const editorState = this.context.getEditorState();
     const currentSelection = this.getSelection();
 
+    if (currentSelection.getAnchorOffset() === 0) {
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      const range = document.createRange();
+      range.setStart(this.root.current, 0);
+      selection.addRange(range);
+      //selection.extend(this.root.current, 2);
+    }
+
     EditorState.forceSelection(editorState, currentSelection)
-    |> onChange;
+    |> this.context.onChange(#);
   }
 
   onDragStart() {
-    const { getEditorState, blockKey, onChange } = this.props;
-    const editorState = getEditorState();
+    const { blockKey } = this.props;
+    const editorState = this.context.getEditorState();
 
     const selectedKeys = getSelectedKeys(editorState);
     const currentIndex = selectedKeys.indexOf(blockKey);
@@ -94,16 +107,17 @@ class Image extends PureComponent {
     }
 
     EditorState.forceSelection(editorState, currentSelection)
-    |> onChange;
+    |> this.context.onChange(#);
   }
 
   render() {
+
     const { classes, contentState, offsetKey, entityKey } = this.props;
     const { state: { focused }, onFocus, onBlur, resize } = this;
     const { symmetric, src, width, height } = contentState.getEntity(entityKey).getData();
     const rootProps = focused ? undefined : { contentEditable: false };
 
-    return <span data-offset-key={offsetKey} draggable={true}
+    return <span data-offset-key={offsetKey} draggable={true} ref={this.root}
       onDragStart={this.onDragStart} {...rootProps}
     >
       <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>

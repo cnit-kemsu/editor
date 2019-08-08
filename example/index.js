@@ -2,9 +2,10 @@ import React, { useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from "@material-ui/core/styles";
-import { convertToRaw } from 'draft-js';
 import Editor from '@components/Editor';
 import { createContentFromHTML } from '@lib/createContentFromHTML';
+import { createEditorStateWithContent } from '@lib/createEditorStateWithContent';
+import { convertStateToRawContent } from '@lib/convertStateToRawContent';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';
 
@@ -15,7 +16,7 @@ const initEditorState = createContentFromHTML(`
     <li>aaaaaa</li>
     <li>bbbbbb</li>
   </ul>
-`);
+`) |> createEditorStateWithContent(#);
 
 function App() {
 
@@ -25,21 +26,20 @@ function App() {
 
   const editor = useRef();
 
-  const addImage = () => {
-    const imageUrl = window.prompt("Paste Image Url", imgUrl);
-    editor.current.insertImage(imageUrl);
+  const onChange = (_editorState) => {
+    changeEditorState(_editorState);
   };
 
-  const onChange = (editorState) => {
-    changeEditorState(editorState);
-    console.log(convertToRaw(editorState.getCurrentContent()));
-  };
+  console.log('content:', convertStateToRawContent(editorState));
+  console.log('selection: ', editorState.getSelection());
 
   return <>
-    <div>
-      <button onClick={addImage}>add image</button>
-    </div>
-    <Editor ref={editor} value={editorState} onChange={onChange} />
+    <Editor ref={editor}
+      editorState={editorState}
+      onChange={onChange}
+      onFocus={() => console.log('focus')}
+      onBlur={() => console.log('blur')}
+    />
   </>;
 }
 

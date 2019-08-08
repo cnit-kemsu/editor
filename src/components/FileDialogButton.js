@@ -9,29 +9,24 @@ export class InlineStyleButton extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.toggleInlineStyle = this.toggleInlineStyle.bind(this);
+
+    this.fileDialog = document.createElement('input');
+    this.fileDialog.type = 'file';
+    this.fileDialog.onchange = this.props.onChange;
+
+    this.open = this.open.bind(this);
   }
 
-  toggleInlineStyle(event) {
+  open(event) {
     event.preventDefault();
-    const { value } = this.props;
-    if (value instanceof Array) this.context.toggleInlineStyleArray(value);
-    else this.context.toggleInlineStyle(value);
-  }
-
-  hasStyle() {
-    const { value } = this.props;
-    return value instanceof Array
-      ? this.context.inlineStyles.has(value[0])
-      : this.context.inlineStyles.has(value);
+    this.fileDialog.click();
   }
   
   render() {
     const { classes, children } = this.props;
 
     return <Button className={classes.root}
-      color={this.hasStyle() ? 'primary' : 'default'}
-      onMouseDown={this.toggleInlineStyle}
+      onMouseDown={this.open}
     >
       {children}
     </Button>;
