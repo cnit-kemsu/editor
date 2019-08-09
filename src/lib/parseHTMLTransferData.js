@@ -185,6 +185,14 @@ function adjustContent({ blocks, entityMap }, html) {
 }
 
 export function parseHTMLTransferData(html) {
+
+  // console.log(html);
+  // const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
+  // const endIndex = html.search('<!--EndFragment-->');
+  // const __html = html.substring(startIndex, endIndex);
+  // console.log(__html);
+  // const frag = document.createRange().createContextualFragment(__html);
+  // console.log(frag);
   
   const _html = html.replace(/<br data-text="true">/g, '<span data-text="true" data-empty="true">0</span>');
   return convertFromHTML(_html)

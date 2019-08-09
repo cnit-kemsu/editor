@@ -15,8 +15,6 @@ import { Editor as styles } from './styles';
 import './draft_editor_styles.css';
 
 class Editor extends PureComponent {
-  //preventNativeChangeEvent = false;
-
   constructor(props) {
     super(props);
 
@@ -33,23 +31,23 @@ class Editor extends PureComponent {
     return this.props.editorState;
   }
 
-  onChange(editorState, /*preventNativeChangeEvent = false*/) {
-    //this.preventNativeChangeEvent = preventNativeChangeEvent;
+  onChange(editorState) {
     this.props.onChange?.(editorState);
   }
 
   nativeOnChange(editorState) {
-    // if (this.preventNativeChangeEvent) {
-    //   this.preventNativeChangeEvent = false;
-    // } else this.onChange(editorState);
     this.onChange(editorState);
   }
 
   handlePastedText(text, html, editorState) {
     if (!html) return false;
-    handlePastedText(html, editorState)
-    |> this.onChange(#);
-    return true;
+    try {
+      handlePastedText(html, editorState)
+      |> this.onChange(#);
+      return true;
+    } catch(error) {
+      return false;
+    }
   }
 
   handleDrop(selection, dataTransfer) {
