@@ -6,6 +6,7 @@ import Editor from '@components/Editor';
 import { createContentFromHTML } from '@lib/createContentFromHTML';
 import { createEditorStateWithContent } from '@lib/createEditorStateWithContent';
 import { convertStateToRawContent } from '@lib/convertStateToRawContent';
+import { blobs } from '@lib/handleDroppedFiles';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';
 
@@ -32,6 +33,7 @@ function App() {
 
   console.log('content:', convertStateToRawContent(editorState));
   console.log('selection: ', editorState.getSelection());
+  console.log('blobs: ', blobs);
 
   return <>
     <Editor ref={editor}
