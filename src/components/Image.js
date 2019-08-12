@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Modifier, EditorState, SelectionState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
+import { editorSettings } from '.../lib/settings';
 import { getSelectedKeys } from '../lib/getSelectedKeys';
 import Resizer from './Resizer';
 import { EditorContext } from './EditorContext';
@@ -116,6 +117,7 @@ class Image extends PureComponent {
     const { state: { focused }, onFocus, onBlur, resize } = this;
     const { symmetric, src, width, height } = contentState.getEntity(entityKey).getData();
     const rootProps = focused ? undefined : { contentEditable: false };
+    const _src = editorSettings.replaceImageSrc(src);
 
     return <span data-offset-key={offsetKey} draggable={true} ref={this.root}
       onDragStart={this.onDragStart} {...rootProps}
@@ -123,7 +125,7 @@ class Image extends PureComponent {
       <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
         <img className={classes.image}
           data-symmetric={symmetric}
-          {...{ src, width, height }}
+          {...{ src: _src, width, height }}
         />
       </Resizer>
       <span data-text={true} className={classes.text}>{'\u{1F4F7}'}</span>
