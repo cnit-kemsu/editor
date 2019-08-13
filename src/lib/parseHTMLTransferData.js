@@ -184,30 +184,166 @@ function adjustContent({ blocks, entityMap }, html) {
   };
 }
 
-export function parseHTMLTransferData(html) {
+const inlineStyleMap = {
+  'color'(value) {
+    return 'TEXT_COLOR=' + value;
+  },
+  'background-color'(value) {
+    return 'FILL_COLOR=' + value;
+  },
+};
+const inlineStyleMap_entries = Object.entries(inlineStyleMap);
 
-  // console.log(html);
-  // const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
-  // const endIndex = html.search('<!--EndFragment-->');
-  // const __html = html.substring(startIndex, endIndex);
-  // console.log(__html);
-  // const frag = document.createRange().createContextualFragment(__html);
-  // console.log(frag);
-  
-  const _html = html.replace(/<br data-text="true">/g, '<span data-text="true" data-empty="true">0</span>');
-  return convertFromHTML(_html)
-  //|> ContentState.createFromBlockArray
-  |> ContentState.createFromBlockArray(#.contentBlocks, #.entityMap)
-  |> convertToRaw
-  |> adjustContent(#, _html)
-  |> convertFromRaw;
+const blockDataMap = {
+  'text-align'(value) {
+    return { textAlign: value };
+  }
+};
+const blockDataMap_entries = Object.entries(blockDataMap);
 
-  // const _html = html.replace(/<br data-text="true">/g, '<span data-text="true" data-empty="true">0</span>');
-  // //const __html = _html.replace(/<li/g, '<div').replace(/<\/li/g, '</div');
-  // const cont1 = convertFromHTML(_html);
-  // const cont2 = ContentState.createFromBlockArray(cont1.contentBlocks, cont1.entityMap);
-  // const cont3 = convertToRaw(cont2);
-  // //return adjustContent(cont3, __html)
-  // return adjustContent(cont3, _html)
-  // |> convertFromRaw;
+const defaultStyle = {
+  'color': 'rgb(0, 0, 0)',
+  'text-align': 'left'
+};
+
+function extractBlockData(node) {
+  let data = {};
+  for (const [propName, toDataProps] of blockDataMap_entries) {
+    const propValue = node.style[propName];
+    if (propValue !== defaultStyle[propName]) data = {
+      ...data,
+      ...toDataProps(propValue)
+    };
+  }
+  return data;
+}
+
+function computeStyle(node, parentStyle) {
+  const style = { ...parentStyle };
+  for (const [propName] of inlineStyleMap_entries) {
+    const propValue = node.style[propName];
+    if (propValue && propValue !== defaultStyle[propName]) style[propName] = propValue;
+  }
+  return style;
+}
+
+function toInlineStyleRanges(offset, length, style) {
+  const inlineStyleRanges = [];
+  for (const [propName, toInlineStyle] of inlineStyleMap_entries) {
+    const propValue = style[propName];
+    if (propValue) inlineStyleRanges.push({
+      offset, length,
+      style: toInlineStyle(style[propName])
+    });
+  }
+  return inlineStyleRanges;
+}
+
+function extractBlockProps(entities, node, offset = 0, parentStyle) {
+
+  if (node instanceof Image) {
+    const { 'data-src': dataSrc, 'data-symmetric': dataSymmetric, src, width, height } = node;
+    entities.push({
+      type: 'IMAGE',
+      mutability: 'IMMUTABLE',
+      data: {
+        symmetric: dataSymmetric !== false,
+        src: dataSrc || src,
+        width,
+        height
+      }
+    });
+    return {
+      text: '\u{1F4F7}',
+      inlineStyleRanges: [],
+      entityRanges: [{
+        offset,
+        length: 1,
+        key: entities.length - 1
+      }],
+      length: 1
+    };
+  }
+
+  if (node instanceof Text) {
+    const { data: text } = node;
+    const length = text.length;
+    return {
+      text,
+      inlineStyleRanges: toInlineStyleRanges(offset, length, parentStyle),
+      entityRanges: [],
+      length
+    };
+  }
+
+  let text = '';
+  let length = 0;
+  const style = computeStyle(node, parentStyle);
+  const inlineStyleRanges = [];
+  const entityRanges = [];
+  for (const childNode of node.childNodes) {
+    const {
+      text: _text,
+      inlineStyleRanges: _inlineStyleRanges,
+      entityRanges: _entityRanges,
+      length: _length
+    } = extractBlockProps(entities, childNode, offset + length, style);
+    text += _text;
+    length += _length;
+    inlineStyleRanges.push(..._inlineStyleRanges);
+    entityRanges.push(..._entityRanges);
+  }
+  return {
+    text,
+    inlineStyleRanges,
+    entityRanges,
+    length
+  };
+}
+
+function createBlocksFromNode(entities, node, blockType) {
+  if (node.tagName === 'UL') return createBlocksFromNodeArray(entities, node.childNodes, 'unordered-list-item');
+  if (node.tagName === 'OL') return createBlocksFromNodeArray(entities, node.childNodes, 'ordered-list-item');
+  const data = extractBlockData(node);
+  const { text, inlineStyleRanges, entityRanges } = extractBlockProps(entities, node);
+  return {
+    type: blockType,
+    data,
+    text,
+    inlineStyleRanges,
+    entityRanges
+  };
+}
+
+function createBlocksFromNodeArray(entities, nodeArray, blockType = 'unstyled') {
+  const blocks = [];
+  for (const node of nodeArray) {
+    createBlocksFromNode(entities, node, blockType)
+    |> # instanceof Array && blocks.push(...#) || blocks.push(#);
+  }
+  return blocks;
+}
+
+export function parseHTML(html) {
+
+  //console.log(html); //DEBUG
+  const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
+  const endIndex = html.search('<!--EndFragment-->');
+  const htmlFragment = html.substring(startIndex, endIndex);
+  //console.log(htmlFragment); //DEBUG
+  const fragment = document.createRange().createContextualFragment(htmlFragment);
+  console.log(fragment); //DEBUG
+
+  console.log(fragment.childNodes);
+  const entities = [];
+  const blocks = createBlocksFromNodeArray(entities, fragment.childNodes);
+  console.log(blocks); //DEBUG
+  const entityMap = {};
+  for (const entityKey of Object.keys(entities)) {
+    entityMap[entityKey] = entities[entityKey];
+  }
+  console.log(entityMap); //DEBUG
+
+  const content = convertFromRaw({ blocks, entityMap });
+  return content;
 }

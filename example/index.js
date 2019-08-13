@@ -42,6 +42,11 @@ function App() {
       onFocus={() => console.log('focus')}
       onBlur={() => console.log('blur')}
     />
+    <div>
+      <div>asd<span style={{ color: 'red' }}>123</span></div>
+      <div>asd<span style={{ color: 'red' }}>123</span></div>
+      <div>asd<span style={{ color: 'red' }}>123</span></div>
+    </div>
   </>;
 }
 

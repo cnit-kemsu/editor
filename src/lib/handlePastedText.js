@@ -1,9 +1,9 @@
 import { Modifier, EditorState } from 'draft-js';
-import { parseHTMLTransferData } from './parseHTMLTransferData';
+import { parseHTML } from './parseHTMLTransferData';
 
 export function handlePastedText(html, editorState) {
   
-  return parseHTMLTransferData(html)
-  |> Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), #.blockMap)
+  const parsed = parseHTML(html);
+  return Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), parsed.blockMap)
   |> EditorState.push(editorState, #, 'insert-fragment');
 }

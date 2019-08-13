@@ -48,13 +48,16 @@ class Editor extends PureComponent {
     // } catch(error) {
     //   return false;
     // }
-    try {
-      handlePastedText(html, editorState)
+    // try {
+    //   handlePastedText(html, editorState)
+    //   |> this.onChange(#);
+    //   return true;
+    // } catch(error) {
+    //   return true;
+    // }
+    handlePastedText(html, editorState)
       |> this.onChange(#);
-      return true;
-    } catch(error) {
-      return true;
-    }
+    return true;
   }
 
   handleDrop(selection, dataTransfer) {
