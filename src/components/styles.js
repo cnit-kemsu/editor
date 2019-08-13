@@ -88,7 +88,7 @@ export const Image = {
   },
   text: {
     visibility: 'hidden !important',
-    marginLeft: '-22px'
+    marginLeft: '-19px'
   }
 };
 

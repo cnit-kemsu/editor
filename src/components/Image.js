@@ -124,6 +124,7 @@ class Image extends PureComponent {
     >
       <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
         <img className={classes.image}
+          data-src={src}
           data-symmetric={symmetric}
           {...{ src: _src, width, height }}
         />

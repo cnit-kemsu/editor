@@ -7,7 +7,7 @@ export function replaceImageEntities(entityMap, html) {
   return Object.values(entityMap).map(entity => {
 
     if (entity.type !== 'IMAGE') return entity;
-    const { 'data-symmetric': symmetric, src, width, height } = 
+    const { 'data-symmetric': symmetric, 'data-src': _src, src, width, height } = 
     findImageTag.exec(html)[0]
       .match(findAttributes)
       .reduce(attributeToProp, {});
@@ -16,7 +16,7 @@ export function replaceImageEntities(entityMap, html) {
       type: 'IMAGE',
       mutability: 'IMMUTABLE',
       data: {
-        src, width, height,
+        src: _src || src, width, height,
         symmetric: symmetric !== false
       }
     };
