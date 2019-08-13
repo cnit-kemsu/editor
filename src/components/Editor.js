@@ -41,12 +41,19 @@ class Editor extends PureComponent {
 
   handlePastedText(text, html, editorState) {
     if (!html) return false;
+    // try {
+    //   handlePastedText(html, editorState)
+    //   |> this.onChange(#);
+    //   return true;
+    // } catch(error) {
+    //   return false;
+    // }
     try {
       handlePastedText(html, editorState)
       |> this.onChange(#);
       return true;
     } catch(error) {
-      return false;
+      return true;
     }
   }
 
