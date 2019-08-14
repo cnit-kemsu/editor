@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from "@material-ui/core/styles";
+import { fontSizeArray } from '../lib/fontSizeArray';
 import { ToolbarContext } from './ToolbarContext';
 import { Picker as styles } from './styles';
 
@@ -15,12 +16,6 @@ function preventDefault(event) {
 function isFontSizeStyle(style) {
   return style.substring(0, 9) === 'FONT_SIZE';
 }
-
-const fontSizeArray = [
-  8, 9, 10, 11, 12,
-  14, 16, 18, 20, 22, 24, 26, 28,
-  36, 48, 72
-];
 
 export class FontSizePicker extends PureComponent {
   static contextType = ToolbarContext;
@@ -74,7 +69,7 @@ export class FontSizePicker extends PureComponent {
 
   applyFontSize(fontSize) {
     this.close();
-    this.context.applyInlineStyleWithValue('FONT_SIZE', fontSize);
+    this.context.applyInlineStyleWithValue('FONT_SIZE', fontSize + 'px');
   }
   
   render() {

@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from "@material-ui/core/styles";
+import { fontFamilyArray } from '../lib/fontFamilyArray';
 import { ToolbarContext } from './ToolbarContext';
 import { Picker as styles } from './styles';
 
@@ -15,22 +16,6 @@ function preventDefault(event) {
 function isFontFamilyStyle(style) {
   return style.substring(0, 11) === 'FONT_FAMILY';
 }
-
-const fontFamilyArray = [
-  'Roboto',
-  'Open Sans',
-  'Arial',
-  //'Helvetica',
-  'Times New Roman',
-  'Courier New',
-  'Verdana',
-  'Georgia',
-  'Garamond',
-  'Comic Sans MS',
-  'Trebuchet MS',
-  //'Arial Black',
-  //'Impact'
-];
 
 export class FontFamilyPicker extends PureComponent {
   static contextType = ToolbarContext;

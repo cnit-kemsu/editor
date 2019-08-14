@@ -6,10 +6,10 @@ const inlineStylesMap = {
     backgroundColor: value
   }),
   FONT_SIZE: value => ({
-    fontSize: value + 'px'
+    fontSize: value
   }),
   FONT_FAMILY: value => ({
-    fontFamily: value
+    fontFamily: value + ', sans-serif'
   }),
   STRIKETHROUGH: (value, style) => ({
     textDecoration: style.textDecoration === undefined ? 'line-through' : style.textDecoration + ' line-through'
