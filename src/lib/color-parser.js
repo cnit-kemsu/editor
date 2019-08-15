@@ -1,55 +1,88 @@
-import { HSLToRGB } from './HSLToRGB';
-
-function HSLAToRGBA(h, s, l, a) {
-  return [
-    ...HSLToRGB(h, s, l),
-    a
-  ];
+function extractNamedGroups(regex, input) {
+  return input.replace(/\s/g, '')
+  |> regex.exec(#)?.groups;
 }
 
-const extractRGBA = /^rgb(a)?\((?<red>\d+),(?<green>\d+),(?<blue>\d+)(,(?<alpha>\d+(\.\d+)?))?\)$/;
-function getRGBA(value) {
-  const RGBA = value.replace(/\s/g, '') |> extractRGBA.exec(#)?.groups;
-  if (RGBA === undefined) return undefined;
+const extractRGBA = /^rgb(a)?\((?<red>\d+),(?<green>\d+),(?<blue>\d+)(,(?<alpha>\d+(\.\d+)?))?\)$/
+|> (input => extractNamedGroups(#, input));
+
+function parseRGBA(value) {
+  const RGBA = extractRGBA(value);
+  if (!RGBA) return;
   let { red, green, blue, alpha = 1 } = RGBA;
   red = Number(red);
   green = Number(green);
   blue = Number(blue);
   alpha = Number(alpha);
-  if (red > 255 || green > 255 || blue > 255 || alpha > 1) return undefined;
+  if (red > 255 || green > 255 || blue > 255 || alpha > 1) return;
   return [red, green, blue, alpha];
 }
 
-const extractHSLA = /^hsl(a)?\((?<hue>\d+),(?<saturation>\d+)%,(?<lightness>\d+)%(,(?<alpha>\d+(\.\d+)?))?\)$/;
-function getHSLA(value) {
-  const HSLA = value.replace(/\s/g, '') |> extractHSLA.exec(#)?.groups;
-  if (HSLA === undefined) return undefined;
+const extractHSLA = /^hsl(a)?\((?<hue>\d+),(?<saturation>\d+)%,(?<lightness>\d+)%(,(?<alpha>\d+(\.\d+)?))?\)$/
+|> (input => extractNamedGroups(#, input));
+
+function parseHSLA(value) {
+  const HSLA = extractHSLA(value);
+  if (!HSLA) return;
   let { hue, saturation, lightness, alpha = 1 } = HSLA;
   hue = Number(hue);
   saturation = Number(saturation);
   lightness = Number(lightness);
   alpha = Number(alpha);
-  if (hue > 360 || saturation > 100 || lightness > 100 || alpha > 1) return undefined;
-  return HSLAToRGBA(hue, saturation, lightness, alpha);
+  if (hue > 360 || saturation > 100 || lightness > 100 || alpha > 1) return;
+  return [hue, saturation, lightness, alpha];
 }
 
-const extractHEXA = /^#(?<red>[0-9A-Fa-f])(?<green>[0-9A-Fa-f])(?<blue>[0-9A-Fa-f])(?<alpha>[0-9A-Fa-f])?$/;
-const extractHEXA2 = /^#(?<red>[0-9A-Fa-f]{2})(?<green>[0-9A-Fa-f]{2})(?<blue>[0-9A-Fa-f]{2})(?<alpha>[0-9A-Fa-f]{2})?$/;
-function getHEXA(value) {
-  const HEXA = value.replace(/\s/g, '')
-  |> extractHEXA.exec(#)?.groups || extractHEXA2.exec(#)?.groups;
-  console.log(HEXA);
-  if (HEXA === undefined) return undefined;
+export function HSLAToRGBA(hue, saturation, lightness, alpha) {
+  const _saturation = saturation / 100,
+  _lightness = lightness / 100;
+
+  const
+    c = (1 - Math.abs(2 * _lightness - 1)) * _saturation,
+    x = c * (1 - Math.abs((hue / 60) % 2 - 1)),
+    m = _lightness - c/2;
+  
+  let red, green, blue;
+  if (hue >= 0 && hue < 60) {
+    red = c; green = x; blue = 0;
+  } else if (hue >= 60 && hue < 120) {
+    red = x; green = c; blue = 0;
+  } else if (hue >= 120 && hue < 180) {
+    red = 0; green = c; blue = x;
+  } else if (hue >= 180 && hue < 240) {
+    red = 0; green = x; blue = c;
+  } else if (hue >= 240 && hue < 300) {
+    red = x; green = 0; blue = c;
+  } else if (hue >= 300 && hue <= 360) {
+    red = c; green = 0; blue = x;
+  }
+
+  return [
+    Math.round((red + m) * 255),
+    Math.round((green + m) * 255),
+    Math.round((blue + m) * 255),
+    alpha
+  ];
+}
+
+const extractHEXA = /^#(?<red>[0-9A-Fa-f])(?<green>[0-9A-Fa-f])(?<blue>[0-9A-Fa-f])(?<alpha>[0-9A-Fa-f])?$/
+|> (input => extractNamedGroups(#, input));
+
+const extractHEXA2 = /^#(?<red>[0-9A-Fa-f]{2})(?<green>[0-9A-Fa-f]{2})(?<blue>[0-9A-Fa-f]{2})(?<alpha>[0-9A-Fa-f]{2})?$/
+|> (input => extractNamedGroups(#, input));
+
+function parseHEXA(value) {
+  const HEXA = extractHEXA(value) || extractHEXA2(value);
+  if (!HEXA) return;
   let { red, green, blue, alpha = 'FF' } = HEXA;
   red = parseInt(red, 16);
   green = parseInt(green, 16);
   blue = parseInt(blue, 16);
   alpha = parseInt(alpha, 16) / 255;
-  //if (red > 255 || green > 255 || blue > 255 || alpha > 1) return undefined;
   return [red, green, blue, alpha];
 }
 
-const colorNames = {
+const HEXAValuesByColorName = {
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',
   aqua: '#00ffff',
@@ -192,26 +225,22 @@ const colorNames = {
   yellow: '#ffff00',
   yellowgreen: '#9acd32'
 };
-
-function colorNameToRgb(value) {
-  const hex = colorNames[value];
-  if (hex === undefined) return undefined;
-  return getHEXA(hex);
+const RGBAValuesByColorName = {};
+for (const colorName in HEXAValuesByColorName) {
+  RGBAValuesByColorName[colorName] = parseHEXA(HEXAValuesByColorName[colorName]);
 }
 
-export function getColor(value) {
+export function parseColor(value) {
 
-  let color = getRGBA(value);
-  if (color !== undefined) return color;
+  let color = parseRGBA(value);
+  if (color) return color;
 
-  color = getHEXA(value);
-  if (color !== undefined) return color;
+  color = parseHEXA(value);
+  if (color) return color;
 
-  color = getHSLA(value);
-  if (color !== undefined) return color;
+  color = parseHSLA(value);
+  if (color) return HSLAToRGBA(color);
 
-  color = colorNameToRgb(value);
-  if (color !== undefined) return color;
-
-  return undefined;
+  color = RGBAValuesByColorName[value];
+  if (color) return color;
 }

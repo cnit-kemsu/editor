@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Button from '@material-ui/core/Button';
 import Popper from '@material-ui/core/Popper';
 import { withStyles } from "@material-ui/core/styles";
-import { HSLToRGB } from '../lib/HSLToRGB';
+import { HSLAToRGBA } from '../lib/color-parser';
 import { ToolbarContext } from './ToolbarContext';
 import ColorPalette from './ColorPalette';
 import { ToolbarButton as styles } from './styles';
@@ -63,7 +63,7 @@ export class ColorPickerButton extends PureComponent {
 
   applyColor(color) {
     this.close();
-    const [r, g, b] = HSLToRGB(...color);
+    const [r, g, b] = HSLAToRGBA(...color);
     this.context.applyInlineStyleWithValue(this.props.value, `rgb(${r}, ${g}, ${b})`);
   }
   

@@ -1,27 +1,27 @@
 const inlineStylesMap = {
-  TEXT_COLOR: value => ({
-    color: value
-  }),
-  FILL_COLOR: value => ({
-    backgroundColor: value
-  }),
-  FONT_SIZE: value => ({
-    fontSize: value
-  }),
-  FONT_FAMILY: value => ({
-    fontFamily: value + ', sans-serif'
-  }),
-  STRIKETHROUGH: (value, style) => ({
-    textDecoration: style.textDecoration === undefined ? 'line-through' : style.textDecoration + ' line-through'
-  }),
-  UNDERLINE: (value, style) => ({
-    textDecoration: style.textDecoration === undefined ? 'underline' : style.textDecoration + ' underline'
-  }),
-  SUPERSCRIPT: {
-    verticalAlign: 'super'
+  TEXT_COLOR(value) {
+    return { color: value };
   },
-  SUBSCRIPT: {
-    verticalAlign: 'sub'
+  FILL_COLOR(value) {
+    return { backgroundColor: value };
+  },
+  FONT_SIZE(value) {
+    return { fontSize: value };
+  },
+  FONT_FAMILY(value) {
+    return { fontFamily: value + ', sans-serif' };
+  },
+  STRIKETHROUGH(value, style) {
+    return {textDecoration: (style.textDecoration || '') + ' line-through' };
+  },
+  UNDERLINE(value, style) {
+    return {textDecoration: (style.textDecoration || '') + ' underline' };
+  },
+  SUPERSCRIPT() {
+    return { verticalAlign: 'super' };
+  },
+  SUBSCRIPT() {
+    return { verticalAlign: 'sub' };
   }
 };
 
@@ -31,10 +31,10 @@ export function customStyleFn(styles) {
   return inlineStyles.reduce(
     (style, currentInlineStyle) => {
       const [name, value] = currentInlineStyle.split('=');
-      const styleProps = inlineStylesMap[name];
-      return styleProps === undefined ? style : {
+      const toStyleProps = inlineStylesMap[name];
+      return !toStyleProps ? style : {
         ...style,
-        ...typeof styleProps === 'function' ? styleProps(value, style) : styleProps
+        ...toStyleProps(value, style)
       };
     }
   , {});

@@ -1,5 +1,5 @@
 import { Modifier, EditorState } from 'draft-js';
-import { parseHTML } from './parseHTMLTransferData';
+import { parseHTML } from './parseHTML';
 
 export function handlePastedText(html, editorState) {
   

@@ -139,7 +139,7 @@
     "no-continue": "off",
     "no-lonely-if": "off",
     "no-mixed-operators": "off",
-    "no-multi-assign": "warn",
+    "no-multi-assign": "off",
     "no-multiple-empty-lines": "off",
     "no-nested-ternary": "off",
     "no-new-object": "off",

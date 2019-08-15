@@ -1,5 +1,5 @@
 import { Modifier, EditorState, SelectionState } from 'draft-js';
-import { parseHTMLTransferData } from './parseHTMLTransferData';
+import { parseHTML } from './parseHTML';
 
 export function handleDrop(selection, html, editorState) {
   const { anchorKey, anchorOffset } = selection;
@@ -8,7 +8,7 @@ export function handleDrop(selection, html, editorState) {
   const endOffset = movableSelection.getEndOffset();
 
   const content = editorState.getCurrentContent();
-  const movableContent = parseHTMLTransferData(html);
+  const movableContent = parseHTML(html);
 
   const isMovingForwardInsideBlock = anchorKey === endKey && anchorOffset > endOffset;
 
