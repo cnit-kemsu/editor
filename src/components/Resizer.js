@@ -2,13 +2,20 @@ import React, { Component } from 'react';
 import { withStyles } from "@material-ui/core/styles";
 import { Resizer as styles } from './styles';
 
-//const MIN_SIZE = 22;
-//const MAX_SIZE = 1000;
+const MIN_SIZE = 22;
+const MAX_SIZE = 1000;
 
-function validateSize(size) {
-  //if (size < MIN_SIZE) return MIN_SIZE;
-  //if (size > MAX_SIZE) return MAX_SIZE;
-  return size;
+function validateSize(newWidth, newHeight, maxWidth) {
+  if (newWidth != null) {
+    if (newWidth < MIN_SIZE) return false;
+    if (newWidth > maxWidth) return false;
+    if (newWidth > MAX_SIZE) return false;
+  }
+  if (newHeight != null) {
+    if (newHeight < MIN_SIZE) return false;
+    if (newHeight > MAX_SIZE) return false;
+  }
+  return true;
 }
 
 class Resizer extends Component {
@@ -21,6 +28,8 @@ class Resizer extends Component {
     this.focus = this.focus.bind(this);
     this.blur = this.blur.bind(this);
 
+    this.validateWidth = this.validateWidth.bind(this);
+    this.validateHeight = this.validateHeight.bind(this);
     this.startHorizontalResizing = this.startHorizontalResizing.bind(this);
     this.stopHorizontalResizing = this.stopHorizontalResizing.bind(this);
     this.horizontalResize = this.horizontalResize.bind(this);
@@ -53,6 +62,22 @@ class Resizer extends Component {
     }
   }
 
+  get maxWidth() {
+    return this.editorElement.clientWidth;
+  }
+
+  validateWidth(newWidth) {
+    const { width, height } = this.child.current;
+    const newHeight = this.props.symmetric ? newWidth * height / width : null;
+    return validateSize(newWidth, newHeight, this.maxWidth);
+  }
+
+  validateHeight(newHeight) {
+    const { width, height } = this.child.current;
+    const newWidth = this.props.symmetric ? newHeight * width / height : null;
+    return validateSize(newWidth, newHeight, this.maxWidth);
+  }
+
   startHorizontalResizing(event) {
     event.preventDefault();
     this.original = {
@@ -69,11 +94,13 @@ class Resizer extends Component {
     document.removeEventListener('mouseup', this.stopHorizontalResizing);
     this.props.onResize?.({
       width: this.child.current.width,
+      height: this.child.current.height
     });
   }
   horizontalResize(event) {
     event.preventDefault();
-    this.child.current.width = this.original.width + event.pageX - this.original.pageX |> validateSize;
+    const newWidth = this.original.width + event.pageX - this.original.pageX;
+    if (this.validateWidth(newWidth)) this.child.current.width = newWidth;
   }
 
   startVerticalResizing(event) {
@@ -92,12 +119,14 @@ class Resizer extends Component {
     document.removeEventListener('mousemove', this.verticalResize);
     document.removeEventListener('mouseup', this.stopVerticalResizing);
     this.props.onResize?.({
+      width: this.child.current.width,
       height: this.child.current.height
     });
   }
   verticalResize(event) {
     event.preventDefault();
-    this.child.current.height = this.original.height + event.pageY - this.original.bottom |> validateSize;
+    const newHeight = this.original.height + event.pageY - this.original.bottom;
+    if (this.validateHeight(newHeight)) this.child.current.height = newHeight;
   }
 
   startResizingBoth(event) {
@@ -124,9 +153,15 @@ class Resizer extends Component {
   }
   resizeBoth(event) {
     event.preventDefault();
+    const newWidth = this.original.width + event.pageX - this.original.pageX;
+    const newHeight = this.original.height + event.pageY - this.original.bottom;
     const child = this.child.current;
-    child.width = this.original.width + event.pageX - this.original.pageX |> validateSize;
-    child.height = this.original.height + event.pageY - this.original.bottom |> validateSize;
+    if (this.validateWidth(newWidth)) child.width = newWidth;
+    if (this.validateHeight(newHeight)) child.height = newHeight;
+  }
+
+  componentDidMount() {
+    this.editorElement = this.root.current.closest('.DraftEditor-root');
   }
 
   render() {
@@ -148,7 +183,7 @@ class Resizer extends Component {
   
       {React.cloneElement(children, {
         ref: this.child,
-        className: focused ? 'resizerChild_disableSelection' : undefined
+        className: [children.props.className, focused ? ' resizerChild_disableSelection' : ''].join(' ')
       })}
   
     </span>;

@@ -1,48 +1,58 @@
 import React, { PureComponent } from 'react';
 import { Editor as DraftEditor } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
+import { handleKeyCommand } from '../lib/handleKeyCommand';
 import { handlePastedText } from '../lib/handlePastedText';
 import { handleDrop } from '../lib/handleDrop';
-import { handleKeyCommand } from '../lib/handleKeyCommand';
 import { handleDroppedFiles } from '../lib/handleDroppedFiles';
 import { blockStyleFn } from '../lib/blockStyleFn';
 import { customStyleFn } from '../lib/customStyleFn';
 import { EditorContext } from './EditorContext';
-import Toolbar from '../components/Toolbar';
-
+import Toolbar from './Toolbar';
 import { Editor as styles } from './styles';
-
 import './draft_editor_styles.css';
 
 class Editor extends PureComponent {
   constructor(props) {
     super(props);
+    this.root = React.createRef();
 
-    this.getEditorState = this.getEditorState.bind(this);
     this.onChange = this.onChange.bind(this);
-    this.nativeOnChange = this.nativeOnChange.bind(this);
+    this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.handlePastedText = this.handlePastedText.bind(this);
-    this.handleKeyCommand = handleKeyCommand.bind(this);
-    this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
     this.handleDrop = this.handleDrop.bind(this);
+    this.handleDroppedFiles = this.handleDroppedFiles.bind(this);
+
+    const getEditorState = () => this.props.editorState;
+    const setEditorState = this.onChange;
+    this.editorContext = {
+      get editorState() {
+        return getEditorState();
+      },
+      set editorState(value) {
+        setEditorState(value);
+      },
+      editorRef: this.root
+    };
   }
   
-  getEditorState() {
-    return this.props.editorState;
-  }
-
   onChange(editorState) {
     this.props.onChange?.(editorState);
   }
 
-  nativeOnChange(editorState) {
-    this.onChange(editorState);
+  handleKeyCommand(command, editorState) {
+    const newState = handleKeyCommand(command, editorState);
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
   }
 
   handlePastedText(text, html, editorState) {
     if (!html) return false;
     handlePastedText(html, editorState)
-      |> this.onChange(#);
+    |> this.onChange(#);
     return true;
   }
 
@@ -55,8 +65,9 @@ class Editor extends PureComponent {
   }
 
   handleDroppedFiles(selection, files) {
-    const editorState = handleDroppedFiles(selection, files, this.props.editorState);
-    if (editorState) this.onChange(editorState);
+    const newState = handleDroppedFiles(selection, files, this.props.editorState);
+    if (newState) this.onChange(newState);
+    //return true;
   }
 
   render() {
@@ -66,11 +77,11 @@ class Editor extends PureComponent {
 
       <Toolbar editorState={editorState} onChange={this.onChange} />
       
-      <EditorContext.Provider value={{ onChange: this.onChange, getEditorState: this.getEditorState }}>
-        <div className={classes.content}>
+      <div ref={this.root} className={classes.content}>
+        <EditorContext.Provider value={this.editorContext}>
           <DraftEditor
             editorState={editorState}
-            onChange={this.nativeOnChange}
+            onChange={this.onChange}
             handleKeyCommand={this.handleKeyCommand}
             handlePastedText={this.handlePastedText}
             handleDrop={this.handleDrop}
@@ -79,10 +90,9 @@ class Editor extends PureComponent {
             customStyleFn={customStyleFn}
             onFocus={onFocus}
             onBlur={onBlur}
-            handleReturn={() => undefined}
           />
-        </div>
-      </EditorContext.Provider>
+        </EditorContext.Provider>
+      </div>
       
     </div>;
   }

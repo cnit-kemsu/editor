@@ -196,7 +196,7 @@ function extractBlockProps(entities, node, parentStyle = {}, offset = 0) {
       type: 'IMAGE',
       mutability: 'IMMUTABLE',
       data: {
-        symmetric: dataSymmetric !== false,
+        symmetric: dataSymmetric !== 'false',
         src: dataSrc || src,
         width,
         height
@@ -279,7 +279,11 @@ function createBlocksFromNodeArray(entities, nodeArray, blockType = 'unstyled') 
 function getNodeArray(fragment) {
   let allSpans = true;
   for (const node of fragment.childNodes) {
-    if (node.tagName !== 'SPAN' && !(node instanceof Text)) {
+    // if (node.tagName !== 'SPAN' && !(node instanceof Text)) {
+    //   allSpans = false;
+    //   break;
+    // }
+    if (node.tagName === 'DIV' || node.tagName === 'P') {
       allSpans = false;
       break;
     }
@@ -298,7 +302,7 @@ export function parseHTML(html) {
 
   const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
   const endIndex = html.search('<!--EndFragment-->');
-  const htmlFragment = html.substring(startIndex, endIndex);
+  const htmlFragment = endIndex === -1 ? html : html.substring(startIndex, endIndex);
   const fragment = document.createRange().createContextualFragment(htmlFragment);
 
   const entities = [];

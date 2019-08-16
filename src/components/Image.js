@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Modifier, EditorState, SelectionState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
-import { editorSettings } from '../lib/settings';
 import { getSelectedKeys } from '../lib/getSelectedKeys';
+import { editorSettings } from '../lib/settings';
 import Resizer from './Resizer';
 import { EditorContext } from './EditorContext';
 import { Image as styles } from './styles';
@@ -12,22 +12,21 @@ class Image extends PureComponent {
 
   constructor(props) {
     super(props);
-
     this.state = { focused: false };
+    this.root = React.createRef();
 
     this.isCurrentEntityKey = this.isCurrentEntityKey.bind(this);
     this.onFocus = this.onFocus.bind(this);
     this.onBlur = this.onBlur.bind(this);
     this.resize = this.resize.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
-
-    this.root = React.createRef();
   }
 
   onFocus() {
     this.setState({ focused: true });
     this.forceSelection();
   }
+
   onBlur() {
     this.setState({ focused: false });
   }
@@ -35,14 +34,15 @@ class Image extends PureComponent {
   isCurrentEntityKey(character) {
     return character.entity === this.props.entityKey;
   }
-  getSelection() {
+
+  getCurrentSelection() {
     const { blockKey } = this.props;
 
-    const offset = this.context.getEditorState()
+    const offset = this.context.editorState
       .getCurrentContent().getBlockForKey(blockKey)
       .getCharacterList().findIndex(this.isCurrentEntityKey);
 
-      return SelectionState.createEmpty(blockKey).merge({
+    return SelectionState.createEmpty(blockKey).merge({
       anchorOffset: offset,
       focusOffset: offset + 2,
       hasFocus: true
@@ -50,47 +50,44 @@ class Image extends PureComponent {
   }
 
   resize({ width, height }) {
-    const { entityKey } = this.props;
-    const editorState = this.context.getEditorState();
-    const { symmetric, src } = editorState.getCurrentContent().getEntity(entityKey).getData();
-    const currentSelection = this.getSelection();
+    const editorState = this.context.editorState;
+    const currentContent = editorState.getCurrentContent();
+    const { symmetric, src } = currentContent.getEntity(this.props.entityKey).getData();
+    const selection = this.getCurrentSelection();
 
-    editorState.getCurrentContent()
-    |> #.createEntity('IMAGE', 'IMMUTABLE', { symmetric, src, width, height })
-    |> Modifier.applyEntity(#, currentSelection, #.getLastCreatedEntityKey())
+    const size = symmetric ? { width } : { width, height };
+    this.context.editorState = currentContent.createEntity('IMAGE', 'IMMUTABLE', { symmetric, src, ...size })
+    |> Modifier.applyEntity(#, selection, #.getLastCreatedEntityKey())
     |> EditorState.push(editorState, #, 'apply-entity')
-    |> EditorState.forceSelection(#, currentSelection)
-    |> this.context.onChange(#);
+    |> EditorState.forceSelection(#, selection);
   }
 
   forceSelection() {
-    const editorState = this.context.getEditorState();
-    const currentSelection = this.getSelection();
+    const editorState = this.context.editorState;
+    const selection = this.getCurrentSelection();
 
-    if (currentSelection.getAnchorOffset() === 0) {
-      const selection = window.getSelection();
-      selection.removeAllRanges();
+    if (selection.getAnchorOffset() === 0) {
+      const _selection = window.getSelection();
+      _selection.removeAllRanges();
       const range = document.createRange();
       range.setStart(this.root.current, 0);
-      selection.addRange(range);
-      //selection.extend(this.root.current, 2);
+      _selection.addRange(range);
+      //_selection.extend(this.root.current, 2);
     }
 
-    EditorState.forceSelection(editorState, currentSelection)
-    |> this.context.onChange(#);
+    this.context.editorState = EditorState.forceSelection(editorState, selection);
   }
 
   onDragStart() {
-    const { blockKey } = this.props;
-    const editorState = this.context.getEditorState();
+    const editorState = this.context.editorState;
 
     const selectedKeys = getSelectedKeys(editorState);
-    const currentIndex = selectedKeys.indexOf(blockKey);
+    const currentIndex = selectedKeys.indexOf(this.props.blockKey);
     if (currentIndex === -1) this.forceSelection();
     if (currentIndex > 0 && currentIndex < selectedKeys.length - 1) return;
 
     const selection = editorState.getSelection();
-    const currentSelection = this.getSelection();
+    const currentSelection = this.getCurrentSelection();
 
     if (currentIndex === 0) {
       const startOffset = selection.getStartOffset();
@@ -107,8 +104,7 @@ class Image extends PureComponent {
       if (endOffset >= currentEndOffset) return;
     }
 
-    EditorState.forceSelection(editorState, currentSelection)
-    |> this.context.onChange(#);
+    this.context.editorState = EditorState.forceSelection(editorState, currentSelection);
   }
 
   render() {
@@ -117,19 +113,20 @@ class Image extends PureComponent {
     const { state: { focused }, onFocus, onBlur, resize } = this;
     const { symmetric, src, width, height } = contentState.getEntity(entityKey).getData();
     const rootProps = focused ? undefined : { contentEditable: false };
-    const _src = editorSettings.replaceImageSrc(src);
+    const actualSrc = editorSettings.replaceImageSrc(src);
+    const dataSrc = actualSrc === undefined ? undefined : src;
 
     return <span data-offset-key={offsetKey} draggable={true} ref={this.root}
       onDragStart={this.onDragStart} {...rootProps}
     >
-      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
+      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize, editorRef: this.context.editorRef }}>
         <img className={classes.image}
-          data-src={src}
+          data-src={dataSrc}
           data-symmetric={symmetric}
-          {...{ src: _src, width, height }}
+          {...{ src: actualSrc || src, width, height }}
         />
       </Resizer>
-      <span data-text={true} className={classes.text}>{'\u{1F4F7}'}</span>
+      <span className={classes.text} data-text={true}>{'\u{1F4F7}'}</span>
     </span>;
   }
 }

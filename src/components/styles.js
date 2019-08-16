@@ -20,7 +20,8 @@ export const Resizer = {
     position: 'relative',
     display: 'inline-block',
     cursor: 'move',
-    userSelect: 'text'
+    userSelect: 'text',
+    maxWidth: '100%'
   },
   topBorder: {
     ...border,
@@ -81,14 +82,11 @@ export const Resizer = {
 
 export const Image = {
   image: {
-    minWidth: '22px',
-    minHeight: '22px',
-    maxWidth: '1000px',
-    maxHeight: '1000px'
+    maxWidth: '100%'
   },
   text: {
     visibility: 'hidden !important',
-    marginLeft: '-19px'
+    marginLeft: '-22px'
   }
 };
 

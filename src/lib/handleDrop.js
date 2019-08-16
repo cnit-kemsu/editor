@@ -16,9 +16,7 @@ export function handleDrop(selection, html, editorState) {
     ? Modifier.replaceWithFragment(content, selection, movableContent.blockMap)
       |> Modifier.removeRange(#, movableSelection)
     : Modifier.removeRange(content, movableSelection)
-      |> Modifier.replaceWithFragment(#, selection, movableContent.blockMap);
-
-  
+      |> Modifier.replaceWithFragment(#, selection, movableContent.blockMap); 
   
   let newState = EditorState.push(editorState, newContent, 'insert-fragment');
   if (isMovingForwardInsideBlock) {

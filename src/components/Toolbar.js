@@ -23,8 +23,9 @@ import InsertPhotoIcon from '@material-ui/icons/InsertPhoto';
 import RedoIcon from '@material-ui/icons/Redo';
 import UndoIcon from '@material-ui/icons/Undo';
 
+import { getSelectionProps } from '../lib/getSelectionProps';
 import { getSelectedBlocks } from '../lib/getSelectedBlocks';
-import { getBlockType } from '../lib/getBlockType';
+import { getOverallBlocksType } from '../lib/getOverallBlocksType';
 import { ToolbarContext } from './ToolbarContext';
 import InlineStyleButton from './InlineStyleButton';
 import BlockTypeButton from './BlockTypeButton';
@@ -147,10 +148,11 @@ export class Toolbar extends PureComponent {
     const undoStack = editorState.getUndoStack();
     const redoStack = editorState.getRedoStack();
 
+    const props = getSelectionProps(editorState.getCurrentContent(), editorState.getSelection());
     const inlineStyles = editorState.getCurrentInlineStyle();
     const _styles = inlineStyles.toArray();
     const selectedBlocks = getSelectedBlocks(editorState);
-    const blockType = getBlockType(selectedBlocks);
+    const blockType = getOverallBlocksType(selectedBlocks);
     const blocksData = selectedBlocks.map(toData);
 
     return <div className={classes.root}>

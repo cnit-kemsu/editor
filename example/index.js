@@ -31,9 +31,9 @@ function App() {
     changeEditorState(_editorState);
   };
 
-  console.log('content:', convertStateToRawContent(editorState));
-  console.log('selection: ', editorState.getSelection());
-  console.log('blobs: ', blobs);
+  // console.log('content:', convertStateToRawContent(editorState));
+  // console.log('selection: ', editorState.getSelection());
+  // console.log('blobs: ', blobs);
 
   return <>
     <Editor ref={editor}
