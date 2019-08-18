@@ -4,7 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { ToolbarContext } from './ToolbarContext';
 import { ToolbarButton as styles } from './styles';
 
-export class InlineStyleButton extends PureComponent {
+export class FileDialogButton extends PureComponent {
   static contextType = ToolbarContext;
 
   constructor(props) {
@@ -33,4 +33,4 @@ export class InlineStyleButton extends PureComponent {
   }
 }
 
-export default withStyles(styles)(InlineStyleButton);
+export default withStyles(styles)(FileDialogButton);

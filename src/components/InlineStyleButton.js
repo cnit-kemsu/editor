@@ -15,22 +15,14 @@ export class InlineStyleButton extends PureComponent {
   toggleInlineStyle(event) {
     event.preventDefault();
     const { value } = this.props;
-    if (value instanceof Array) this.context.toggleInlineStyleArray(value);
-    else this.context.toggleInlineStyle(value);
-  }
-
-  hasStyle() {
-    const { value } = this.props;
-    return value instanceof Array
-      ? this.context.inlineStyles.has(value[0])
-      : this.context.inlineStyles.has(value);
+    this.context.applyInlineStyle(value);
   }
   
   render() {
-    const { classes, children } = this.props;
+    const { classes, active, children } = this.props;
 
     return <Button className={classes.root}
-      color={this.hasStyle() ? 'primary' : 'default'}
+      color={active ? 'primary' : 'default'}
       onMouseDown={this.toggleInlineStyle}
     >
       {children}

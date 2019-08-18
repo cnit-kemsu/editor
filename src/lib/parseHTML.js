@@ -53,12 +53,13 @@ const fontSizeNames = {
   'xx-small': 9
 };
 const fontSizeUnitDefaults = {
+  'px': 16,
   'pt': 12,
   'em': 1,
   '%': 100
 };
 
-const extractFontSize = /(?<size>\d+)(?<units>px|pt|em|%)/ |> (input => #.exec(input)?.groups);
+const extractFontSize = /(?<size>\d+)(?<unit>px|pt|em|%)/ |> (input => #.exec(input)?.groups);
 
 const styleValueHandlers = {
   textAlign(value) {
@@ -302,7 +303,7 @@ export function parseHTML(html) {
 
   const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
   const endIndex = html.search('<!--EndFragment-->');
-  const htmlFragment = endIndex === -1 ? html : html.substring(startIndex, endIndex);
+  const htmlFragment = (endIndex === -1 ? html : html.substring(startIndex, endIndex)) |> #.replace(/(?:\r\n|\r|\n|\t|  )/g, '');
   const fragment = document.createRange().createContextualFragment(htmlFragment);
 
   const entities = [];

@@ -97,6 +97,12 @@ export const Toolbar = {
   },
   button: {
     minWidth: '0px'
+  },
+  fontSizePicker: {
+    minWidth: '50px'
+  },
+  fontFamilyPicker: {
+    minWidth: '170px'
   }
 };
 
@@ -131,11 +137,14 @@ export const ColorPalette = makeStyles({
   }
 });
 
-export const Picker = {
+export const SelectPicker = {
   select: {
     margin: '0px 8px'
-  },
-  menuItem: {
-    minHeight: '0px'
   }
 };
+
+export const PickerList = makeStyles({
+  menuItem: {
+    minHeight: '0px !important'
+  }
+});

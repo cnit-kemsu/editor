@@ -20,7 +20,10 @@ export class ToolbarButton extends PureComponent {
   render() {
     const { classes, children, disabled } = this.props;
 
-    return <Button disabled={disabled} className={classes.root} onMouseDown={this.onMouseDown}>
+    return <Button disabled={disabled} 
+      className={classes.root}
+      onMouseDown={this.onMouseDown}
+    >
       {children}
     </Button>;
   }

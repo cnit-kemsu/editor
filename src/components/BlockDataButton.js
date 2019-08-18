@@ -9,28 +9,21 @@ export class BlockDataButton extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.toggleBlockData = this.toggleBlockData.bind(this);
-    this.equalsToCurrentValue = this.equalsToCurrentValue.bind(this);
+    this.changeBlockData = this.changeBlockData.bind(this);
   }
 
-  equalsToCurrentValue(data) {
-    const { name, value } = this.props;
-    return data.get(name) === value;
-  }
-
-  toggleBlockData(event) {
+  changeBlockData(event) {
     event.preventDefault();
-    const { name, value } = this.props;
-    this.context.mergeBlockData({ [name]: this.isActive ? null : value });
+    const { name, value, active } = this.props;
+    this.context.changeBlockData({ [name]: active ? null : value });
   }
   
   render() {
-    const { classes, children } = this.props;
-    this.isActive = this.context.blocksData.every(this.equalsToCurrentValue);
+    const { classes, active, children } = this.props;
 
     return <Button className={classes.root}
-      color={this.isActive ? 'primary' : 'default'}
-      onMouseDown={this.toggleBlockData}
+      color={active ? 'primary' : 'default'}
+      onMouseDown={this.changeBlockData}
     >
       {children}
     </Button>;

@@ -18,10 +18,10 @@ export class BlockTypeButton extends PureComponent {
   }
   
   render() {
-    const { classes, value, children } = this.props;
+    const { classes, active, children } = this.props;
 
     return <Button className={classes.root}
-      color={this.context.blockType === value ? 'primary' : 'default'}
+      color={active ? 'primary' : 'default'}
       onMouseDown={this.toggleBlockType}
     >
       {children}

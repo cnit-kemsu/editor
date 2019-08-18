@@ -12,7 +12,7 @@ function adjustContent(content) {
   return content;
 }
 
-export function convertStateToRawContent(editorState) {
+export function convertEditorStateToRawContent(editorState) {
   return editorState.getCurrentContent()
   |> convertToRaw
   |> adjustContent;

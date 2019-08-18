@@ -71,11 +71,11 @@ class Editor extends PureComponent {
   }
 
   render() {
-    const { classes, editorState, onFocus, onBlur } = this.props;
+    const { classes, editorState, onFocus, onBlur, readOnly = false } = this.props;
 
-    return <div className={classes.root}>
+    return <div className={readOnly ? undefined : classes.root}>
 
-      <Toolbar editorState={editorState} onChange={this.onChange} />
+      {!readOnly && <Toolbar editorState={editorState} onChange={this.onChange} />}
       
       <div ref={this.root} className={classes.content}>
         <EditorContext.Provider value={this.editorContext}>
@@ -90,6 +90,7 @@ class Editor extends PureComponent {
             customStyleFn={customStyleFn}
             onFocus={onFocus}
             onBlur={onBlur}
+            readOnly={readOnly}
           />
         </EditorContext.Provider>
       </div>
