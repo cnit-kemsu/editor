@@ -45,6 +45,7 @@ const SUBSCRIPT = ['SUBSCRIPT', 'SUPERSCRIPT'];
 function isFontSizeStyle(style) {
   return style.substring(0, 9) === 'FONT_SIZE';
 }
+
 function applyFontSize(applyInlineStyle, fontSize) {
   applyInlineStyle('FONT_SIZE', fontSize + 'px');
 }
@@ -52,6 +53,7 @@ function applyFontSize(applyInlineStyle, fontSize) {
 function isFontFamilyStyle(style) {
   return style.substring(0, 11) === 'FONT_FAMILY';
 }
+
 function applyFontFamily(applyInlineStyle, fontFamily) {
   applyInlineStyle('FONT_FAMILY', fontFamily);
 }
