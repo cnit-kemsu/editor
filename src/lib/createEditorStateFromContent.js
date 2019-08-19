@@ -9,8 +9,10 @@ export function createEditorStateFromContent(contentState) {
     component: Image
   }]);
 
-  return (contentState == null
+  return contentState == null
     ? EditorState.createEmpty(decorator)
-    : (contentState instanceof ContentState ? contentState : convertFromRaw(contentState))
-  ) |> EditorState.createWithContent(#, decorator);
+    : (
+      (contentState instanceof ContentState ? contentState : convertFromRaw(contentState))
+      |> EditorState.createWithContent(#, decorator)
+    );
 }
