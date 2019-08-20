@@ -72,7 +72,7 @@ class Editor extends PureComponent {
   }
 
   render() {
-    const { classes, editorState, onFocus, onBlur, readOnly = false } = this.props;
+    const { classes, editorState, onFocus, onBlur, placeholder, readOnly = false } = this.props;
     const _editorState = editorState || createEditorStateFromContent();
 
     return <div className={readOnly ? undefined : classes.root}>
@@ -93,6 +93,7 @@ class Editor extends PureComponent {
             onFocus={onFocus}
             onBlur={onBlur}
             readOnly={readOnly}
+            placeholder={placeholder}
           />
         </EditorContext.Provider>
       </div>
