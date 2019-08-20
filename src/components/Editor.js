@@ -7,6 +7,7 @@ import { handleDrop } from '../lib/handleDrop';
 import { handleDroppedFiles } from '../lib/handleDroppedFiles';
 import { blockStyleFn } from '../lib/blockStyleFn';
 import { customStyleFn } from '../lib/customStyleFn';
+import { createEditorStateFromContent } from '../lib/createEditorStateFromContent';
 import { EditorContext } from './EditorContext';
 import Toolbar from './Toolbar';
 import { Editor as styles } from './styles';
@@ -80,7 +81,7 @@ class Editor extends PureComponent {
       <div ref={this.root} className={classes.content}>
         <EditorContext.Provider value={this.editorContext}>
           <DraftEditor
-            editorState={editorState}
+            editorState={editorState || createEditorStateFromContent()}
             onChange={this.onChange}
             handleKeyCommand={this.handleKeyCommand}
             handlePastedText={this.handlePastedText}
