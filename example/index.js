@@ -26,9 +26,9 @@ function App() {
   console.log('render App');
 
   const rawContent = convertEditorStateToRawContent(editorState);
-  // console.log('content:', rawContent);
-  // console.log('selection: ', editorState.getSelection());
-  // console.log('blobs: ', blobs);
+  console.log('content:', rawContent);
+  console.log('selection: ', editorState.getSelection());
+  //console.log('blobs: ', blobs);
 
   return <>
     <Editor editorKey="123"

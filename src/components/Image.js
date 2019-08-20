@@ -20,6 +20,9 @@ class Image extends PureComponent {
     this.onBlur = this.onBlur.bind(this);
     this.resize = this.resize.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
+    this.getData = this.getData.bind(this);
+    this.isCurrentFile = this.isCurrentFile.bind(this);
+    this.findCurrentSrc = this.findCurrentSrc.bind(this);
   }
 
   onFocus() {
@@ -52,11 +55,16 @@ class Image extends PureComponent {
   resize({ width, height }) {
     const editorState = this.context.editorState;
     const currentContent = editorState.getCurrentContent();
-    const { symmetric, src } = currentContent.getEntity(this.props.entityKey).getData();
+    const { symmetric, src, file, fileSourceKey } = currentContent.getEntity(this.props.entityKey).getData();
     const selection = this.getCurrentSelection();
 
     const size = symmetric ? { width } : { width, height };
-    this.context.editorState = currentContent.createEntity('IMAGE', 'IMMUTABLE', { symmetric, src, ...size })
+    const props = {};
+    if (fileSourceKey) props.fileSourceKey = fileSourceKey;
+    else if (file) props.file = file;
+    else if (src) props.src = src;
+    
+    this.context.editorState = currentContent.createEntity('IMAGE', 'IMMUTABLE', { symmetric, ...props, ...size })
     |> Modifier.applyEntity(#, selection, #.getLastCreatedEntityKey())
     |> EditorState.push(editorState, #, 'apply-entity')
     |> EditorState.forceSelection(#, selection);
@@ -107,23 +115,60 @@ class Image extends PureComponent {
     this.context.editorState = EditorState.forceSelection(editorState, currentSelection);
   }
 
+  getData() {
+    const { src, file, fileSourceKey, ...data } = this.props.contentState.getEntity(this.props.entityKey).getData();
+    this.file = file;
+    this.src = src;
+    this.fileSourceKey = fileSourceKey;
+    return data;
+  }
+
+  isCurrentFile([file]) {
+    return file === this.file;
+  }
+
+  findCurrentSrc() {
+    if (this.src) return { src: this.src };
+    if (this.fileSourceKey) return {
+      src: editorSettings.handleFileSourceKey(this.fileSourceKey),
+      fileSourceKey: this.fileSourceKey
+    };
+    if (!this.file) return {};
+    const { filesAndUrls } = this.context;
+    let currentIndex = filesAndUrls.findIndex(this.isCurrentFile);
+    if (currentIndex === -1) {
+      const src = URL.createObjectURL(this.file);
+      filesAndUrls.push([this.file, src]);
+      currentIndex = filesAndUrls.length - 1;
+      return {
+        src,
+        fileIndex: currentIndex
+      };
+    }
+    return {
+      src: filesAndUrls[currentIndex][1],
+      fileIndex: currentIndex
+    };
+  }
+
   render() {
 
-    const { classes, contentState, offsetKey, entityKey } = this.props;
+    const { classes, offsetKey } = this.props;
     const { state: { focused }, onFocus, onBlur, resize } = this;
-    const { symmetric, src, width, height } = contentState.getEntity(entityKey).getData();
+    const { symmetric, width, height } = this.getData();
     const rootProps = focused ? undefined : { contentEditable: false };
-    const actualSrc = editorSettings.replaceImageSrc(src);
-    const dataSrc = actualSrc === undefined ? undefined : src;
+    
+    const { src, fileSourceKey, fileIndex } = this.findCurrentSrc();
 
     return <span data-offset-key={offsetKey} draggable={true} ref={this.root}
       onDragStart={this.onDragStart} {...rootProps}
     >
-      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize, editorRef: this.context.editorRef }}>
+      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
         <img className={classes.image}
-          data-src={dataSrc}
+          data-file-source-key={fileSourceKey}
+          data-file-index={fileIndex}
           data-symmetric={symmetric}
-          {...{ src: actualSrc || src, width, height }}
+          {...{ src, width, height }}
         />
       </Resizer>
       <span className={classes.text} data-text={true}>{'\u{1F4F7}'}</span>

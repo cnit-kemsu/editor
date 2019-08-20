@@ -183,24 +183,28 @@ function getAttributes(node) {
   return attributes;
 }
 
-function extractBlockProps(entities, node, parentStyle = {}, offset = 0) {
+function extractBlockProps(filesAndUrls, entities, node, parentStyle = {}, offset = 0) {
 
   if (node instanceof Image) {
-    const { 'data-src': dataSrc, 'data-symmetric': dataSymmetric, src, width, height } = getAttributes(node);
+    const { 'data-file-source-key': fileSourceKey, 'data-file-index': fileIndex, 'data-symmetric': symmetric, src, width, height } = getAttributes(node);
     if (src.substring(0, 4) === 'file') return {
       text: '',
       inlineStyleRanges: [],
       entityRanges: [],
       length: 0
     };
+    const props = {};
+    if (fileSourceKey) props.fileSourceKey = fileSourceKey;
+    else if (fileIndex) props.file = filesAndUrls[fileIndex][0];
+    else if (src) props.src = src;
+    if (width) props.width = width;
+    if (height) props.height = height;
     entities.push({
       type: 'IMAGE',
       mutability: 'IMMUTABLE',
       data: {
-        symmetric: dataSymmetric !== 'false',
-        src: dataSrc || src,
-        width,
-        height
+        symmetric: symmetric !== 'false',
+        ...props
       }
     });
     return {
@@ -239,7 +243,7 @@ function extractBlockProps(entities, node, parentStyle = {}, offset = 0) {
       inlineStyleRanges: _inlineStyleRanges,
       entityRanges: _entityRanges,
       length: _length
-    } = extractBlockProps(entities, childNode, style, offset + length);
+    } = extractBlockProps(filesAndUrls, entities, childNode, style, offset + length);
     text += _text;
     length += _length;
     inlineStyleRanges.push(..._inlineStyleRanges);
@@ -253,12 +257,12 @@ function extractBlockProps(entities, node, parentStyle = {}, offset = 0) {
   };
 }
 
-function createBlocksFromNode(entities, node, blockType) {
-  if (node.tagName === 'UL') return createBlocksFromNodeArray(entities, node.childNodes, 'unordered-list-item');
-  if (node.tagName === 'OL') return createBlocksFromNodeArray(entities, node.childNodes, 'ordered-list-item');
+function createBlocksFromNode(filesAndUrls, entities, node, blockType) {
+  if (node.tagName === 'UL') return createBlocksFromNodeArray(filesAndUrls, entities, node.childNodes, 'unordered-list-item');
+  if (node.tagName === 'OL') return createBlocksFromNodeArray(filesAndUrls, entities, node.childNodes, 'ordered-list-item');
   const style = computeStyle(node.style);
   const data = extractBlockData(style);
-  const { text, inlineStyleRanges, entityRanges } = extractBlockProps(entities, node, style);
+  const { text, inlineStyleRanges, entityRanges } = extractBlockProps(filesAndUrls, entities, node, style);
   return {
     type: blockType,
     data,
@@ -268,10 +272,10 @@ function createBlocksFromNode(entities, node, blockType) {
   };
 }
 
-function createBlocksFromNodeArray(entities, nodeArray, blockType = 'unstyled') {
+function createBlocksFromNodeArray(filesAndUrls, entities, nodeArray, blockType = 'unstyled') {
   const blocks = [];
   for (const node of nodeArray) {
-    createBlocksFromNode(entities, node, blockType)
+    createBlocksFromNode(filesAndUrls, entities, node, blockType)
     |> # instanceof Array && blocks.push(...#) || blocks.push(#);
   }
   return blocks;
@@ -299,7 +303,7 @@ function getNodeArray(fragment) {
   return nodeArray;
 }
 
-export function parseHTML(html) {
+export function parseHTML(html, filesAndUrls) {
 
   const startIndex = '<!--StartFragment-->' |> html.search(#) + #.length;
   const endIndex = html.search('<!--EndFragment-->');
@@ -307,7 +311,7 @@ export function parseHTML(html) {
   const fragment = document.createRange().createContextualFragment(htmlFragment);
 
   const entities = [];
-  const blocks = getNodeArray(fragment) |> createBlocksFromNodeArray(entities, #);
+  const blocks = getNodeArray(fragment) |> createBlocksFromNodeArray(filesAndUrls, entities, #);
   const entityMap = {};
   for (const key in entities) entityMap[key] = entities[key];
 

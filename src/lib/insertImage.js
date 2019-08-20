@@ -1,11 +1,11 @@
 import { Modifier, EditorState } from 'draft-js';
 
-export function insertImage(src, editorState, selection) {
+export function insertImage(file, editorState, selection) {
  
   return editorState.getCurrentContent()
   
   |> #.createEntity('IMAGE', 'IMMUTABLE', {
-      src,
+      file,
       symmetric: true
     })
 

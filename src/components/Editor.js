@@ -32,7 +32,7 @@ class Editor extends PureComponent {
       set editorState(value) {
         setEditorState(value);
       },
-      editorRef: this.root
+      filesAndUrls: []
     };
   }
   
@@ -51,7 +51,7 @@ class Editor extends PureComponent {
 
   handlePastedText(text, html, editorState) {
     if (!html) return false;
-    handlePastedText(html, editorState)
+    handlePastedText(html, editorState, this.editorContext.filesAndUrls)
     |> this.onChange(#);
     return true;
   }
@@ -59,7 +59,7 @@ class Editor extends PureComponent {
   handleDrop(selection, dataTransfer) {
     const html = dataTransfer.getHTML();
     if (!html) return false;
-    handleDrop(selection, html, this.props.editorState)
+    handleDrop(selection, html, this.props.editorState, this.editorContext.filesAndUrls)
     |> this.onChange(#);
     return true;
   }
