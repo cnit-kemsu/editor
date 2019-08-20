@@ -3,4 +3,3 @@ export { editorSettings } from './src/lib/settings';
 export { parseHTML } from './src/lib/parseHTML';
 export { createEditorStateFromContent } from './src/lib/createEditorStateFromContent';
 export { convertEditorStateToRawContent } from './src/lib/convertEditorStateToRawContent';
-export { blobs } from './src/lib/handleDroppedFiles';
