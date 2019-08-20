@@ -13,6 +13,7 @@ function adjustContent(content) {
 }
 
 export function convertEditorStateToRawContent(editorState) {
+  if (!editorState) return undefined;
   return editorState.getCurrentContent()
   |> convertToRaw
   |> adjustContent;
