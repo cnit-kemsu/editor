@@ -26,11 +26,13 @@ class Image extends PureComponent {
   }
 
   onFocus() {
+    if (this.context.readOnly) return;
     this.setState({ focused: true });
     this.forceSelection();
   }
 
   onBlur() {
+    if (this.context.readOnly) return;
     this.setState({ focused: false });
   }
 
@@ -154,16 +156,16 @@ class Image extends PureComponent {
   render() {
 
     const { classes, offsetKey } = this.props;
-    const { state: { focused }, onFocus, onBlur, resize } = this;
+    const { state: { focused }, onFocus, onBlur, resize, context: { readOnly } } = this;
     const { symmetric, width, height } = this.getData();
     const rootProps = focused ? undefined : { contentEditable: false };
     
     const { src, fileSourceKey, fileIndex } = this.findCurrentSrc();
 
     return <span data-offset-key={offsetKey} draggable={true} ref={this.root}
-      onDragStart={this.onDragStart} {...rootProps}
+      onDragStart={readOnly ? undefined : this.onDragStart} {...rootProps}
     >
-      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize }}>
+      <Resizer {...{ symmetric, focused, onFocus, onBlur, onResize: resize, readOnly }}>
         <img className={classes.image}
           data-file-source-key={fileSourceKey}
           data-file-index={fileIndex}

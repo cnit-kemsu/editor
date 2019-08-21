@@ -165,9 +165,13 @@ class Resizer extends Component {
   }
 
   render() {
-    const { classes, focused, children } = this.props;
+    const { classes, focused, children, readOnly } = this.props;
 
-    return <span className={classes.root} ref={this.root} onClick={this.focus}>
+    return <span ref={this.root}
+    className={classes.root}
+    onClick={this.focus}
+    style={readOnly ? undefined : { cursor: 'move' }}
+    >
   
       {focused && <>
         <span className={classes.topBorder} />

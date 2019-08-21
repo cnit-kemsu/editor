@@ -6,7 +6,6 @@ import Editor from '@components/Editor';
 import { parseHTML } from '@lib/parseHTML';
 import { createEditorStateFromContent } from '@lib/createEditorStateFromContent';
 import { convertEditorStateToRawContent } from '@lib/convertEditorStateToRawContent';
-import { blobs } from '@lib/handleDroppedFiles';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';
 
@@ -36,6 +35,7 @@ function App() {
       onChange={changeEditorState}
       onFocus={() => console.log('focus')}
       onBlur={() => console.log('blur')}
+      //readOnly={true}
     />
     {/* <hr />
     <Editor editorKey="asd"

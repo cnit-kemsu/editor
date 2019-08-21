@@ -19,7 +19,7 @@ export const Resizer = {
   root: {
     position: 'relative',
     display: 'inline-block',
-    cursor: 'move',
+    //cursor: 'move',
     userSelect: 'text',
     maxWidth: '100%'
   },

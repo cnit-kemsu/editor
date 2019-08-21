@@ -26,6 +26,7 @@ class Editor extends PureComponent {
 
     const getEditorState = () => this.props.editorState;
     const setEditorState = this.onChange;
+    const getReadOnly = () => this.props.readOnly;
     this.editorContext = {
       get editorState() {
         return getEditorState();
@@ -33,7 +34,10 @@ class Editor extends PureComponent {
       set editorState(value) {
         setEditorState(value);
       },
-      filesAndUrls: []
+      filesAndUrls: [],
+      get readOnly() {
+        return getReadOnly();
+      }
     };
   }
   
@@ -60,29 +64,29 @@ class Editor extends PureComponent {
   handleDrop(selection, dataTransfer) {
     const html = dataTransfer.getHTML();
     if (!html) return false;
-    handleDrop(selection, html, this.props.editorState, this.editorContext.filesAndUrls)
+    handleDrop(selection, html, this.editorState, this.editorContext.filesAndUrls)
     |> this.onChange(#);
     return true;
   }
 
   handleDroppedFiles(selection, files) {
-    const newState = handleDroppedFiles(selection, files, this.props.editorState);
+    const newState = handleDroppedFiles(selection, files, this.editorState);
     if (newState) this.onChange(newState);
     //return true;
   }
 
   render() {
     const { classes, editorState, onFocus, onBlur, placeholder, readOnly = false } = this.props;
-    const _editorState = editorState || createEditorStateFromContent();
+    this.editorState = editorState || createEditorStateFromContent();
 
     return <div className={readOnly ? undefined : classes.root}>
 
-      {!readOnly && <Toolbar editorState={_editorState} onChange={this.onChange} />}
+      {!readOnly && <Toolbar editorState={this.editorState} onChange={this.onChange} />}
       
       <div ref={this.root} className={classes.content}>
         <EditorContext.Provider value={this.editorContext}>
           <DraftEditor
-            editorState={_editorState}
+            editorState={this.editorState}
             onChange={this.onChange}
             handleKeyCommand={this.handleKeyCommand}
             handlePastedText={this.handlePastedText}
