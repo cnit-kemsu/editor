@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Editor as DraftEditor } from 'draft-js';
+import { Editor as DraftEditor, EditorState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
 import { handleKeyCommand } from '../lib/handleKeyCommand';
 import { handlePastedText } from '../lib/handlePastedText';
@@ -42,6 +42,7 @@ class Editor extends PureComponent {
   }
   
   onChange(editorState) {
+    if (this.props.readOnly) return;
     this.props.onChange?.(editorState);
   }
 
@@ -77,13 +78,13 @@ class Editor extends PureComponent {
 
   render() {
     const { classes, editorState, onFocus, onBlur, placeholder, readOnly = false } = this.props;
-    this.editorState = editorState || createEditorStateFromContent();
+    this.editorState = editorState instanceof EditorState ? editorState : createEditorStateFromContent(editorState);
 
     return <div className={readOnly ? undefined : classes.root}>
 
       {!readOnly && <Toolbar editorState={this.editorState} onChange={this.onChange} />}
       
-      <div ref={this.root} className={classes.content}>
+      <div ref={this.root} className={classes.content} style={readOnly ? undefined : { paddingTop: '16px' }}>
         <EditorContext.Provider value={this.editorContext}>
           <DraftEditor
             editorState={this.editorState}

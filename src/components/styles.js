@@ -118,7 +118,7 @@ export const Editor = {
     padding: '8px 16px 16px 16px'
   },
   content: {
-    paddingTop: '16px'
+    //paddingTop: '16px'
   }
 };
 
