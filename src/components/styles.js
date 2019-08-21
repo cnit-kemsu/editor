@@ -21,7 +21,9 @@ export const Resizer = {
     display: 'inline-block',
     //cursor: 'move',
     userSelect: 'text',
-    maxWidth: '100%'
+    maxWidth: '100%',
+    lineHeight: 'initial',
+    boxSizing: 'initial'
   },
   topBorder: {
     ...border,
