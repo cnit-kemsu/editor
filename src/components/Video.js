@@ -139,7 +139,7 @@ class Video extends PureComponent {
             src={emptyImageURL}
             style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%' }}
           />}
-          <iframe style={{ width: '100%', height: '100%' }} src={this.src} frameBorder="0" allowfullscreen />
+          <iframe style={{ width: '100%', height: '100%' }} src={this.src} frameBorder="0" allowFullScreen />
         </span>
       </Resizer1>
       <span className={classes.text} data-text={true}>{'\u{1F4F7}'}</span>
