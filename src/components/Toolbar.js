@@ -10,6 +10,7 @@ import InlineStyleButton from './InlineStyleButton';
 import BlockTypeButton from './BlockTypeButton';
 import BlockDataButton from './BlockDataButton';
 import ColorPickerButton from './ColorPickerButton';
+import URLPickerButton from './URLPickerButton';
 import SelectPicker from './SelectPicker';
 import FontSizeList from './FontSizeList';
 import FontFamilyList from './FontFamilyList';
@@ -72,6 +73,7 @@ export class Toolbar extends PureComponent {
     this.toggleBlockType = this.toggleBlockType.bind(this);
     this.changeBlockData = this.changeBlockData.bind(this);
     this.insertImage = this.insertImage.bind(this);
+    this.insertVideo = this.insertVideo.bind(this);
     this.undo = this.undo.bind(this);
     this.redo = this.redo.bind(this);
   }
@@ -130,6 +132,29 @@ export class Toolbar extends PureComponent {
     const newEditorState = handleDroppedFiles(null, event.target.files, editorState);
     if (newEditorState) onChange(newEditorState);
   }
+
+  // test
+  insertVideo(url) {
+ 
+    const { editorState, onChange } = this.props;
+    const src = url;
+
+    editorState.getCurrentContent()
+    
+    |> #.createEntity('VIDEO', 'IMMUTABLE', {
+        src,
+        symmetric: true
+      })
+  
+    |> Modifier.insertText(
+        #, editorState.getSelection(),
+        '\u{1F4F7}', null, #.getLastCreatedEntityKey()
+      )
+  
+    |> EditorState.push(editorState, #, 'insert-characters')
+
+    |> onChange(#);
+   }
   
   render() {
     const { classes, editorState } = this.props;
@@ -175,6 +200,9 @@ export class Toolbar extends PureComponent {
         <BlockDataButton active={blocksData.every(justifyAligned)} name="textAlign" value="justify"><AlignJustifyIcon /></BlockDataButton>
 
         <FileDialogButton onChange={this.insertImage}><InsertPhotoIcon /></FileDialogButton>
+
+        {/** test */}
+        <URLPickerButton action={this.insertVideo}><InsertPhotoIcon /></URLPickerButton>
 
         <ToolbarButton disabled={undoStack.size === 0} onClick={this.undo}><UndoIcon /></ToolbarButton>
         <ToolbarButton disabled={redoStack.size === 0} onClick={this.redo}><RedoIcon /></ToolbarButton>

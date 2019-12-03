@@ -186,6 +186,37 @@ function getAttributes(node) {
 function extractBlockProps(filesAndUrls, entities, node, parentStyle = {}, offset = 0) {
 
   if (node instanceof Image) {
+    const { 'data-src': src, 'data-video': dataVideo, 'data-symmetric': symmetric } = getAttributes(node);
+    if (dataVideo) {
+      let { width, height } = node.style;
+      if (width.substr(-2) === 'px') width = width.slice(0, -2); else width = undefined;
+      if (height.substr(-2) === 'px') height = height.slice(0, -2); else height = undefined;
+      const props = {};
+      if (src) props.src = src;
+      if (width) props.width = width;
+      if (height) props.height = height;
+      entities.push({
+        type: 'VIDEO',
+        mutability: 'IMMUTABLE',
+        data: {
+          symmetric: symmetric !== 'false',
+          ...props
+        }
+      });
+      return {
+        text: '\u{1F4F7}',
+        inlineStyleRanges: [],
+        entityRanges: [{
+          offset,
+          length: 1,
+          key: entities.length - 1
+        }],
+        length: 1
+      };
+    }
+  }
+
+  if (node instanceof Image) {
     const { 'data-file-source-key': fileSourceKey, 'data-file-index': fileIndex, 'data-symmetric': symmetric, src, width, height } = getAttributes(node);
     if (src.substring(0, 4) === 'file') return {
       text: '',

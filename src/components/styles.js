@@ -82,8 +82,93 @@ export const Resizer = {
   }
 };
 
+export const Resizer1 = {
+  root: {
+    position: 'relative',
+    display: 'inline-block',
+    //cursor: 'move',
+    userSelect: 'text',
+    maxWidth: '100%',
+    lineHeight: 'initial',
+    boxSizing: 'initial'
+  },
+  topBorder: {
+    ...border,
+    top: '0',
+    left: '0',
+    right: '0',
+    height: borderWidth,
+    borderTop: borderStyle,
+    zIndex: '1000'
+  },
+  rightBorder: {
+    ...border,
+    top: '0',
+    right: '0',
+    bottom: '0',
+    width: borderWidth,
+    borderRight: borderStyle,
+    cursor: 'e-resize',
+    zIndex: '1000'
+  },
+  bottomBorder: {
+    ...border,
+    bottom: '2px',
+    left: '0',
+    right: '0',
+    height: borderWidth,
+    borderBottom: borderStyle,
+    cursor: ({ symmetric }) => symmetric ? undefined : 's-resize',
+    zIndex: '1000'
+  },
+  leftBorder: {
+    ...border,
+    top: '0',
+    left: '0',
+    bottom: '0',
+    width: borderWidth,
+    borderLeft: borderStyle,
+    zIndex: '1000'
+  },
+  topRightVerterx: {
+    ...vertex,
+    top: '-3px',
+    right: '-3px',
+    zIndex: '1000'
+  },
+  bottomRightVerterx: {
+    ...vertex,
+    bottom: '-1px',
+    right: '-3px',
+    cursor: ({ symmetric }) => symmetric ? undefined : 'se-resize',
+    zIndex: '1000'
+  },
+  bottomLeftVerterx: {
+    ...vertex,
+    bottom: '-1px',
+    left: '-3px',
+    zIndex: '1000'
+  },
+  topLeftVerterx: {
+    ...vertex,
+    top: '-3px',
+    left: '-3px',
+    zIndex: '1000'
+  }
+};
+
 export const Image = {
   image: {
+    maxWidth: '100%'
+  },
+  text: {
+    visibility: 'hidden !important',
+    marginLeft: '-22px'
+  }
+};
+
+export const Video = {
+  video: {
     maxWidth: '100%'
   },
   text: {
