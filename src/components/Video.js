@@ -131,14 +131,14 @@ class Video extends PureComponent {
     >
       <Resizer1 {...{ symmetric, focused, onFocus, onBlur, onResize: resize, readOnly }}>
         <span style={{ width, height, display: 'block' }}>
-          <img className={classes.video}
+          {!readOnly && <img className={classes.video}
             data-symmetric={symmetric}
             data-video={true}
             data-src={this.src}
             draggable={true}
             src={emptyImageURL}
             style={{ position: 'absolute', top: '0px', left: '0px', width: '100%', height: '100%' }}
-          />
+          />}
           <iframe style={{ width: '100%', height: '100%' }} src={this.src} frameBorder="0" />
         </span>
       </Resizer1>

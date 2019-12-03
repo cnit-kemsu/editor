@@ -35,6 +35,7 @@ import RedoIcon from '@material-ui/icons/Redo';
 import UndoIcon from '@material-ui/icons/Undo';
 import SuperscriptIcon from './SuperscriptIcon';
 import SubscriptIcon from './SubscriptIcon';
+import VideocamIcon from '@material-ui/icons/Videocam';
 
 function toData(block) {
   return block.getData();
@@ -202,7 +203,7 @@ export class Toolbar extends PureComponent {
         <FileDialogButton onChange={this.insertImage}><InsertPhotoIcon /></FileDialogButton>
 
         {/** test */}
-        <URLPickerButton action={this.insertVideo}><InsertPhotoIcon /></URLPickerButton>
+        <URLPickerButton action={this.insertVideo}><VideocamIcon /></URLPickerButton>
 
         <ToolbarButton disabled={undoStack.size === 0} onClick={this.undo}><UndoIcon /></ToolbarButton>
         <ToolbarButton disabled={redoStack.size === 0} onClick={this.redo}><RedoIcon /></ToolbarButton>
