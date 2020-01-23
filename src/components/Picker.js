@@ -51,6 +51,7 @@ export class Picker extends PureComponent {
     return <Popper ref={this.popper}
       open={this.state.open}
       anchorEl={this.state.target}
+      style={{ zIndex: '99999' }}
     >
       {this.props.children}
     </Popper>;
