@@ -1,7 +1,7 @@
 import { EditorState, CompositeDecorator, convertFromRaw, ContentState } from 'draft-js';
-import { findImageEntities } from './findImageEntities';
-import Image from '../components/Image';
-import Video from '../components/Video';
+import { findImageEntities } from './internals/findImageEntities';
+import Image from './components/Image';
+import Video from './components/Video';
 
 function findVideoEntities(contentBlock, callback, contentState) {
 

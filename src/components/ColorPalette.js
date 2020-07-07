@@ -1,6 +1,6 @@
 import React from 'react';
-import colors from '../lib/colors';
-import { preventDefault } from '../lib/preventDefault';
+import colors from '../internals/colors';
+import { preventDefault } from '../internals/preventDefault';
 import { ColorPalette as useStyles } from './styles';
 
 

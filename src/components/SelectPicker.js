@@ -3,7 +3,7 @@ import Select from '@material-ui/core/Select';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from "@material-ui/core/styles";
-import { preventDefault } from '../lib/preventDefault';
+import { preventDefault } from '../internals/preventDefault';
 import { ToolbarContext } from './ToolbarContext';
 import { Picker } from './Picker';
 import { SelectPicker as styles } from './styles';

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Button from '@material-ui/core/Button';
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import { preventDefault } from '../lib/preventDefault';
+import { preventDefault } from '../internals/preventDefault';
 import { ToolbarContext } from './ToolbarContext';
 import { Picker } from './Picker';
 import { ToolbarButton as styles } from './styles';

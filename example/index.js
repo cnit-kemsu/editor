@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ThemeProvider } from '@material-ui/styles';
 import { createMuiTheme } from "@material-ui/core/styles";
-import Editor from '@components/Editor';
-import { parseHTML } from '@lib/parseHTML';
-import { createEditorStateFromContent } from '@lib/createEditorStateFromContent';
-import { convertEditorStateToRawContent } from '@lib/convertEditorStateToRawContent';
+import Editor from '@src/components/Editor';
+import { parseHTML } from '@src/parseHTML';
+import { createEditorStateFromContent } from '@src/createEditorStateFromContent';
+import { convertEditorStateToRawContent } from '@src/convertEditorStateToRawContent';
 
 const imgUrl = 'https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto';
 
@@ -30,18 +30,15 @@ function App() {
   //console.log('blobs: ', blobs);
 
   return <>
-    <Editor editorKey="123"
-      editorState={editorState}
-      onChange={changeEditorState}
-      onFocus={() => console.log('focus')}
-      onBlur={() => console.log('blur')}
-      //readOnly={true}
-    />
-    {/* <hr />
-    <Editor editorKey="asd"
-      editorState={createEditorStateFromContent(rawContent)}
-      readOnly={true}
-    /> */}
+    <div style={{ width: '800px' }}>
+      <Editor editorKey="123"
+        editorState={editorState}
+        onChange={changeEditorState}
+        onFocus={() => console.log('focus')}
+        onBlur={() => console.log('blur')}
+        //readOnly={true}
+      />
+    </div>
     <div>
       <div>asd<span style={{ color: 'red' }}>123</span></div>
       <div>asd<span style={{ color: 'red' }}>123</span></div>

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import Button from '@material-ui/core/Button';
 import { withStyles } from "@material-ui/core/styles";
-import { preventDefault } from '../lib/preventDefault';
+import { preventDefault } from '../internals/preventDefault';
 import { ToolbarContext } from './ToolbarContext';
 import ColorPalette from './ColorPalette';
 import { Picker } from './Picker';

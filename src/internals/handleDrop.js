@@ -1,5 +1,5 @@
 import { Modifier, EditorState, SelectionState } from 'draft-js';
-import { parseHTML } from './parseHTML';
+import { parseHTML } from '../parseHTML';
 
 export function handleDrop(selection, html, editorState, filesAndUrls) {
   const { anchorKey, anchorOffset } = selection;

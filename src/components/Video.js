@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Modifier, EditorState, SelectionState } from 'draft-js';
 import { withStyles } from "@material-ui/core/styles";
-import { getSelectedKeys } from '../lib/getSelectedKeys';
+import { getSelectedKeys } from '../internals/getSelectedKeys';
 import Resizer1 from './Resizer1';
 import { EditorContext } from './EditorContext';
 import { Video as styles } from './styles';

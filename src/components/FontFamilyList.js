@@ -1,8 +1,8 @@
 import React from 'react';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
-import { fontFamilyArray } from '../lib/fontFamilyArray';
-import { preventDefault } from '../lib/preventDefault';
+import { fontFamilyArray } from '../internals/fontFamilyArray';
+import { preventDefault } from '../internals/preventDefault';
 import { PickerList as useStyles } from './styles';
 
 

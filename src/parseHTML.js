@@ -1,7 +1,7 @@
 import { convertFromRaw } from 'draft-js';
-import { parseColor } from './color-parser';
-import { fontFamilyArray } from './fontFamilyArray';
-import { fontSizeArray } from './fontSizeArray';
+import { parseColor } from './internals/color-parser';
+import { fontFamilyArray } from './internals/fontFamilyArray';
+import { fontSizeArray } from './internals/fontSizeArray';
 
 const inlineStyleMap = {
   color(value) {
